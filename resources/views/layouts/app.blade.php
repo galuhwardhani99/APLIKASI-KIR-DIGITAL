@@ -103,13 +103,13 @@
                         <ul class="nav nav-treeview">
                             @if(Auth::user()->role === 'admin')
                             <li class="nav-item">
-                                <a href="#" class="nav-link {{ request()->routeIs('aset.create') ? 'active' : '' }}">
+                                <a href="{{ route('aset.create') }}" class="nav-link {{ request()->routeIs('aset.create') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Tambah Aset</p>
                                 </a>
                             </li>
                             @endif
                             <li class="nav-item">
-                                <a href="#" class="nav-link {{ request()->routeIs('aset.index') ? 'active' : '' }}">
+                                <a href="{{ route('aset.index') }}" class="nav-link {{ request()->routeIs('aset.index') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Daftar Aset</p>
                                 </a>
                             </li>
