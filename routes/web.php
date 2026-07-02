@@ -56,7 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('ruangan', RuanganController::class);
 
         // Aset (uncomment setelah AsetController dibuat)
-        // Route::resource('aset', AsetController::class);
+        Route::resource('aset', \App\Http\Controllers\AsetController::class);
 
         // Mutasi Aset (uncomment setelah MutasiController dibuat)
         // Route::resource('mutasi', MutasiController::class);
