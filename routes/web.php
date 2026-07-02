@@ -55,6 +55,12 @@ Route::middleware('auth')->group(function () {
         // Ruangan
         Route::resource('ruangan', RuanganController::class);
 
+        Route::get('ruangan/{ruangan}/kelola-aset', [RuanganController::class, 'kelolaAset'])
+           ->name('ruangan.kelola-aset');
+
+        Route::post('ruangan/{ruangan}/kelola-aset', [RuanganController::class, 'simpanAset'])
+           ->name('ruangan.simpan-aset'); 
+
         // Aset (uncomment setelah AsetController dibuat)
         Route::resource('aset', \App\Http\Controllers\AsetController::class);
 
