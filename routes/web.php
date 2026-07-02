@@ -3,10 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\RuanganController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+/*
+|--------------------------------------------------------------------------
+| ROOT – redirect ke login
+|--------------------------------------------------------------------------
+*/
+Route::get('/', fn() => redirect()->route('login'));
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +19,6 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->group(function () {
-
-    Route::get('/', fn() => redirect()->route('login'));
 
     Route::get('/login', [AuthController::class, 'showLogin'])
          ->name('login');
@@ -35,36 +38,54 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])
          ->name('logout');
 
-    // Dashboard – bisa diakses admin maupun auditor
+    // Dashboard – admin + auditor
     Route::get('/dashboard', [DashboardController::class, 'index'])
          ->name('dashboard');
 
     /*
     |----------------------------------------------------------------------
     | ADMIN ONLY – akses penuh CRUD
-    | Tambahkan route modul lain di sini setelah dibuat
     |----------------------------------------------------------------------
     */
     Route::middleware('role:admin')->group(function () {
 
-        // Contoh (uncomment setelah controller dibuat):
-        // Route::resource('asets', AsetController::class);
-        // Route::resource('ruangans', RuanganController::class);
-        // Route::resource('pics', PicController::class);
+        // Pegawai
+        Route::resource('pegawai', PegawaiController::class);
+
+        // Ruangan
+        Route::resource('ruangan', RuanganController::class);
+
+        // Aset (uncomment setelah AsetController dibuat)
+        // Route::resource('aset', AsetController::class);
+
+        // Mutasi Aset (uncomment setelah MutasiController dibuat)
         // Route::resource('mutasi', MutasiController::class);
+
+        // PIC (uncomment setelah PicController dibuat)
+        // Route::resource('pic', PicController::class);
 
     });
 
     /*
     |----------------------------------------------------------------------
     | ADMIN + AUDITOR – view only
-    | Tambahkan route laporan / lihat data di sini
     |----------------------------------------------------------------------
     */
-    // Contoh (uncomment setelah controller dibuat):
-    // Route::get('laporan/ruangan',  [LaporanController::class, 'ruangan'])->name('laporan.ruangan');
-    // Route::get('laporan/kondisi',  [LaporanController::class, 'kondisi'])->name('laporan.kondisi');
-    // Route::get('laporan/mutasi',   [LaporanController::class, 'mutasi'])->name('laporan.mutasi');
-    // Route::get('laporan/pic',      [LaporanController::class, 'pic'])->name('laporan.pic');
+
+    // Laporan (uncomment setelah LaporanController dibuat)
+    // Route::prefix('laporan')->name('laporan.')->group(function () {
+    //     Route::get('ruangan',  [LaporanController::class, 'ruangan'])->name('ruangan');
+    //     Route::get('kondisi',  [LaporanController::class, 'kondisi'])->name('kondisi');
+    //     Route::get('mutasi',   [LaporanController::class, 'mutasi'])->name('mutasi');
+    //     Route::get('pic',      [LaporanController::class, 'pic'])->name('pic');
+    // });
+
+    /*
+    |----------------------------------------------------------------------
+    | API INTERNAL – dipakai JavaScript (dropdown auto-load NIP)
+    |----------------------------------------------------------------------
+    */
+    Route::get('api/pegawai/{pegawai}/nip', [PegawaiController::class, 'getNip'])
+         ->name('api.pegawai.nip');
 
 });
