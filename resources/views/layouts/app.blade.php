@@ -12,20 +12,11 @@
 
     @stack('styles')
 </head>
-{{--
-    Layout AdminLTE:
-    sidebar-mini        → sidebar mengecil saat di-collapse
-    layout-fixed        → sidebar & navbar tetap saat scroll
---}}
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-    {{-- ══════════════════════════════════════════════ --}}
-    {{-- NAVBAR ATAS                                    --}}
-    {{-- ══════════════════════════════════════════════ --}}
+    {{-- NAVBAR ATAS --}}
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-
-        {{-- Tombol toggle sidebar --}}
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button">
@@ -39,18 +30,12 @@
             </li>
         </ul>
 
-        {{-- Kanan navbar --}}
         <ul class="navbar-nav ml-auto">
-
-            {{-- Badge notifikasi --}}
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="far fa-bell"></i>
-                    {{-- <span class="badge badge-warning navbar-badge">3</span> --}}
                 </a>
             </li>
-
-            {{-- Dropdown user --}}
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="fas fa-user-circle mr-1"></i>
@@ -72,23 +57,18 @@
                     </form>
                 </div>
             </li>
-
         </ul>
     </nav>
 
-    {{-- ══════════════════════════════════════════════ --}}
-    {{-- SIDEBAR                                        --}}
-    {{-- ══════════════════════════════════════════════ --}}
+    {{-- SIDEBAR --}}
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-        {{-- Logo --}}
         <a href="{{ route('dashboard') }}" class="brand-link text-center">
             <i class="fas fa-qrcode brand-image elevation-3"
                style="font-size:1.8rem; opacity:.8; line-height:2rem; margin:0 8px;"></i>
             <span class="brand-text font-weight-bold">SIKAR</span>
         </a>
 
-        {{-- Info user --}}
         <div class="sidebar">
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
@@ -99,10 +79,9 @@
                 </div>
             </div>
 
-            {{-- Menu --}}
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column nav-flat nav-compact"
-                    data-widget="treeview" role="menu">
+                    data-widget="treeview" role="menu" data-accordion="false">
 
                     {{-- Dashboard --}}
                     <li class="nav-item">
@@ -116,50 +95,52 @@
                     <li class="nav-header">MASTER DATA</li>
 
                     {{-- Data Aset --}}
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ request()->routeIs('aset.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('aset.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-box"></i>
                             <p>Data Aset<i class="fas fa-angle-left right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             @if(Auth::user()->role === 'admin')
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="#" class="nav-link {{ request()->routeIs('aset.create') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Tambah Aset</p>
                                 </a>
                             </li>
                             @endif
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="#" class="nav-link {{ request()->routeIs('aset.index') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Daftar Aset</p>
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    {{-- Ruangan --}}
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    {{-- Data Ruangan --}}
+                    <li class="nav-item {{ request()->routeIs('ruangan.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('ruangan.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-door-open"></i>
                             <p>Data Ruangan<i class="fas fa-angle-left right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             @if(Auth::user()->role === 'admin')
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i><p>Kelola Ruangan</p>
+                                <a href="{{ route('ruangan.create') }}"
+                                   class="nav-link {{ request()->routeIs('ruangan.create') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i><p>Tambah Ruangan</p>
                                 </a>
                             </li>
                             @endif
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('ruangan.index') }}"
+                                   class="nav-link {{ request()->routeIs('ruangan.index') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Daftar Ruangan</p>
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    {{-- PIC --}}
+                    {{-- Data PIC --}}
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-user-tie"></i>
@@ -181,19 +162,30 @@
                         </ul>
                     </li>
 
+                    {{-- Data Pegawai --}}
+                    @if(Auth::user()->role === 'admin')
+                    <li class="nav-item {{ request()->routeIs('pegawai.*') ? 'menu-open' : '' }}">
+                        <a href="{{ route('pegawai.index') }}"
+                           class="nav-link {{ request()->routeIs('pegawai.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Data Pegawai</p>
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-header">TRANSAKSI</li>
 
                     {{-- Mutasi Aset --}}
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="#" class="nav-link {{ request()->routeIs('mutasi.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-exchange-alt"></i>
                             <p>Mutasi Aset</p>
                         </a>
                     </li>
                     @endif
 
-                    {{-- QR Code --}}
+                    {{-- Scan QR Code --}}
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-qrcode"></i>
@@ -203,30 +195,30 @@
 
                     <li class="nav-header">LAPORAN</li>
 
-                    {{-- Laporan --}}
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    {{-- Laporan KIR --}}
+                    <li class="nav-item {{ request()->routeIs('laporan.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-file-alt"></i>
                             <p>Laporan KIR<i class="fas fa-angle-left right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="#" class="nav-link {{ request()->routeIs('laporan.ruangan') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Per Ruangan</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="#" class="nav-link {{ request()->routeIs('laporan.kondisi') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Kondisi Aset</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="#" class="nav-link {{ request()->routeIs('laporan.mutasi') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Mutasi Aset</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="#" class="nav-link {{ request()->routeIs('laporan.pic') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Laporan PIC</p>
                                 </a>
                             </li>
@@ -238,12 +230,8 @@
         </div>
     </aside>
 
-    {{-- ══════════════════════════════════════════════ --}}
-    {{-- KONTEN UTAMA                                   --}}
-    {{-- ══════════════════════════════════════════════ --}}
+    {{-- KONTEN UTAMA --}}
     <div class="content-wrapper">
-
-        {{-- Page Header --}}
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -252,7 +240,9 @@
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('dashboard') }}">Home</a>
+                            </li>
                             @yield('breadcrumb')
                         </ol>
                     </div>
@@ -260,7 +250,6 @@
             </div>
         </div>
 
-        {{-- Konten --}}
         <div class="content">
             <div class="container-fluid">
                 @yield('content')
@@ -279,7 +268,6 @@
         </div>
     </footer>
 
-    {{-- Sidebar overlay (mobile) --}}
     <div id="sidebar-overlay"></div>
 </div>
 
