@@ -20,4 +20,9 @@ class Aset extends Model
     {
         return $this->belongsTo(Ruangan::class);
     }
+
+    public function kirs()
+    {
+        return $this->belongsToMany(Kir::class, 'aset_kir');
+    }
 }

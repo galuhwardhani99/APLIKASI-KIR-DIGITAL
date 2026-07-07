@@ -140,25 +140,67 @@
                         </ul>
                     </li>
 
-                    {{-- Data PIC --}}
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-user-tie"></i>
-                            <p>Data PIC<i class="fas fa-angle-left right"></i></p>
+                    {{-- KIR --}}
+                    <li class="nav-item {{ request()->routeIs('kir.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('kir.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>
+                                KIR
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
                         </a>
+
                         <ul class="nav nav-treeview">
+
                             @if(Auth::user()->role === 'admin')
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i><p>Update PIC</p>
+                                <a href="{{ route('kir.create') }}"
+                                class="nav-link {{ request()->routeIs('kir.create') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Buat KIR</p>
                                 </a>
                             </li>
                             @endif
+
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i><p>Riwayat PIC</p>
+                                <a href="{{ route('kir.index') }}"
+                                class="nav-link {{ request()->routeIs('kir.index') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Daftar KIR</p>
                                 </a>
                             </li>
+
+                        </ul>
+                    </li>
+
+                   {{-- Data PIC --}}
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-user-tie"></i>
+                            <p>
+                                Data PIC
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+
+                        <ul class="nav nav-treeview">
+
+                            @if(Auth::user()->role === 'admin')
+                            <li class="nav-item">
+                                <a href="{{ route('pic.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Update PIC</p>
+                                </a>
+                            </li>
+                            @endif
+
+                            <li class="nav-item">
+                                <a href="{{ route('pic.history') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Riwayat PIC</p>
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
 

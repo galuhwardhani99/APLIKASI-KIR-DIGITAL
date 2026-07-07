@@ -16,21 +16,29 @@ class Pegawai extends Model
         'is_active',
     ];
 
-    // Ruangan di mana pegawai ini sebagai Pengurus Barang
-    public function ruanganSebagaiPengurus()
-    {
-        return $this->hasMany(Ruangan::class, 'pengurus_barang_id');
-    }
-
-    // Ruangan di mana pegawai ini sebagai Penanggung Jawab
-    public function ruanganSebagaiPJ()
-    {
-        return $this->hasMany(Ruangan::class, 'penanggung_jawab_id');
-    }
-
     // Helper: tampilkan "NAMA — NIP"
     public function getNamaLengkapAttribute(): string
     {
         return "{$this->nama} — {$this->nip}";
+    }
+
+    public function pengurusLama()
+    {
+        return $this->hasMany(PicHistory::class, 'pengurus_barang_lama_id');
+    }
+
+    public function pengurusBaru()
+    {
+        return $this->hasMany(PicHistory::class, 'pengurus_barang_baru_id');
+    }
+
+    public function pjLama()
+    {
+        return $this->hasMany(PicHistory::class, 'penanggung_jawab_lama_id');
+    }
+
+    public function pjBaru()
+    {
+        return $this->hasMany(PicHistory::class, 'penanggung_jawab_baru_id');
     }
 }

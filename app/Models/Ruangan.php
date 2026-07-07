@@ -9,13 +9,7 @@ class Ruangan extends Model
     protected $table = 'ruangans';
 
     protected $fillable = [
-        'kode_lokasi',
         'nama_ruangan',
-        'pengguna_barang',
-        'pengurus_barang_id',
-        'penanggung_jawab_id',
-        'tanggal_ttd_pengurus',
-        'tanggal_ttd_pj',
         'keterangan',
     ];
 
@@ -40,5 +34,15 @@ class Ruangan extends Model
     public function asets()
     {
         return $this->hasMany(Aset::class);
+    }
+
+    public function kirs()
+    {
+        return $this->hasMany(Kir::class);
+    }
+
+    public function picHistories()
+    {
+        return $this->hasMany(PicHistory::class);
     }
 }

@@ -30,11 +30,7 @@ class RuanganController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode_lokasi' => 'required|string|max:255',
             'nama_ruangan' => 'required|string|max:255',
-            'pengguna_barang' => 'nullable|string|max:255',
-            'pengurus_barang_id' => 'nullable|exists:pegawais,id',
-            'penanggung_jawab_id' => 'nullable|exists:pegawais,id',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -59,11 +55,7 @@ class RuanganController extends Controller
     public function update(Request $request, Ruangan $ruangan)
     {
         $validated = $request->validate([
-            'kode_lokasi' => 'required|string|max:255',
             'nama_ruangan' => 'required|string|max:255',
-            'pengguna_barang' => 'nullable|string|max:255',
-            'pengurus_barang_id' => 'nullable|exists:pegawais,id',
-            'penanggung_jawab_id' => 'nullable|exists:pegawais,id',
             'keterangan' => 'nullable|string',
         ]);
 
