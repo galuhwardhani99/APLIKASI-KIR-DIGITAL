@@ -14,14 +14,15 @@
 @section('content')
 
 @if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
 @endif
 
 <div class="card card-primary card-outline">
 
     <div class="card-header d-flex justify-content-between align-items-center">
+
         <h3 class="card-title">
             <i class="fas fa-door-open mr-1"></i>
             Daftar Ruangan
@@ -31,81 +32,79 @@
             <i class="fas fa-plus mr-1"></i>
             Tambah Ruangan
         </a>
+
     </div>
 
     <div class="card-body table-responsive">
 
-        <table id="tableRuangan" class="table table-bordered table-striped table-hover" style="width:100%">
+        <table id="tableRuangan" class="table table-bordered table-striped table-hover">
+
             <thead class="thead-light">
+
                 <tr>
-                    <th>No</th>
-                    <th>Kode Lokasi</th>
+                    <th width="60">No</th>
                     <th>Nama Ruangan</th>
-                    <th>Pengguna Barang</th>
-                    <th>Pengurus Barang</th>
-                    <th>Penanggung Jawab</th>
-                    <th>Jumlah Aset</th>
+                    <th>Keterangan</th>
+                    <th width="120">Jumlah Aset</th>
                     <th width="170">Aksi</th>
                 </tr>
+
             </thead>
 
             <tbody>
 
                 @foreach($ruangans as $ruangan)
 
-                    <tr>
+                <tr>
 
-                        <td>{{ $loop->iteration }}</td>
+                    <td>{{ $loop->iteration }}</td>
 
-                        <td>{{ $ruangan->kode_lokasi }}</td>
+                    <td>{{ $ruangan->nama_ruangan }}</td>
 
-                        <td>{{ $ruangan->nama_ruangan }}</td>
+                    <td>{{ $ruangan->keterangan ?: '-' }}</td>
 
-                        <td>{{ $ruangan->pengguna_barang ?? '-' }}</td>
+                    <td class="text-center">
+                        <span class="badge badge-info">
+                            {{ $ruangan->asets->count() }}
+                        </span>
+                    </td>
 
-                        <td>{{ $ruangan->pengurusBarang->nama ?? '-' }}</td>
+                    <td class="text-center">
 
-                        <td>{{ $ruangan->penanggungJawab->nama ?? '-' }}</td>
+                        <a href="{{ route('ruangan.kelola-aset', $ruangan->id) }}"
+                           class="btn btn-info btn-sm"
+                           title="Kelola Aset">
+                            <i class="fas fa-boxes"></i>
+                        </a>
 
-                        <td class="text-center">
-                            <span class="badge badge-info">
-                                {{ $ruangan->asets->count() }}
-                            </span>
-                        </td>
+                        <a href="{{ route('ruangan.edit', $ruangan->id) }}"
+                           class="btn btn-warning btn-sm"
+                           title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
 
-                        <td class="text-center">
+                        <form action="{{ route('ruangan.destroy', $ruangan->id) }}"
+                              method="POST"
+                              class="d-inline"
+                              onsubmit="return confirm('Yakin ingin menghapus ruangan ini?')">
 
-                            <a href="{{ route('ruangan.kelola-aset', $ruangan->id) }}"
-                               class="btn btn-info btn-sm"
-                               title="Kelola Aset">
-                                <i class="fas fa-boxes"></i>
-                            </a>
+                            @csrf
+                            @method('DELETE')
 
-                            <a href="{{ route('ruangan.edit', $ruangan->id) }}"
-                               class="btn btn-warning btn-sm"
-                               title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-sm"
+                                title="Hapus">
 
-                            <form action="{{ route('ruangan.destroy', $ruangan->id) }}"
-                                  method="POST"
-                                  class="d-inline"
-                                  onsubmit="return confirm('Yakin ingin menghapus ruangan ini?')">
+                                <i class="fas fa-trash"></i>
 
-                                @csrf
-                                @method('DELETE')
+                            </button>
 
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm"
-                                        title="Hapus">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                        </form>
 
-                            </form>
+                    </td>
 
-                        </td>
-
-                    </tr>
+                </tr>
 
                 @endforeach
 
@@ -125,6 +124,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 
 <script>
+
 $(function () {
 
     $('#tableRuangan').DataTable({
@@ -144,6 +144,7 @@ $(function () {
     });
 
 });
+
 </script>
 
 @endpush

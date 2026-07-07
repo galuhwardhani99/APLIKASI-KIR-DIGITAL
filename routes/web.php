@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\RuanganController;
+use App\Http\Controllers\KirController;
+use App\Http\Controllers\PicController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,28 +51,78 @@ Route::middleware('auth')->group(function () {
     */
     Route::middleware('role:admin')->group(function () {
 
-        // Pegawai
-        Route::resource('pegawai', PegawaiController::class);
+        /*
+          |--------------------------------------------------------------------------
+          | Pegawai
+          |--------------------------------------------------------------------------
+          */
+          Route::resource('pegawai', PegawaiController::class);
 
-        // Ruangan
-        Route::resource('ruangan', RuanganController::class);
+          /*
+          |--------------------------------------------------------------------------
+          | Ruangan
+          |--------------------------------------------------------------------------
+          */
+          Route::resource('ruangan', RuanganController::class);
 
-        Route::get('ruangan/{ruangan}/kelola-aset', [RuanganController::class, 'kelolaAset'])
-           ->name('ruangan.kelola-aset');
+          Route::get('ruangan/{ruangan}/kelola-aset', [RuanganController::class, 'kelolaAset'])
+               ->name('ruangan.kelola-aset');
 
-        Route::post('ruangan/{ruangan}/kelola-aset', [RuanganController::class, 'simpanAset'])
-           ->name('ruangan.simpan-aset'); 
+          Route::post('ruangan/{ruangan}/kelola-aset', [RuanganController::class, 'simpanAset'])
+               ->name('ruangan.simpan-aset');
 
-        // Aset (uncomment setelah AsetController dibuat)
-        Route::resource('aset', \App\Http\Controllers\AsetController::class);
+          /*
+          |--------------------------------------------------------------------------
+          | Aset
+          |--------------------------------------------------------------------------
+          */
+          Route::resource('aset', \App\Http\Controllers\AsetController::class);
+
+          /*
+          |--------------------------------------------------------------------------
+          | KIR
+          |--------------------------------------------------------------------------
+          */
+          Route::resource('kir', KirController::class)
+               ->only([
+                    'index',
+                    'create',
+                    'store'
+               ]);
+
+          /*
+          |--------------------------------------------------------------------------
+          | PIC
+          |--------------------------------------------------------------------------
+          */
+          Route::resource('pic', \App\Http\Controllers\PicController::class)
+               ->only([
+                    'index',
+                    'create',
+                    'store'
+               ]);
+
+          Route::get('pic/history', [PicController::class, 'history'])
+               ->name('pic.history');
+
+          // API untuk mengambil PIC terakhir berdasarkan ruangan
+          Route::get('pic/ruangan/{ruangan}', [\App\Http\Controllers\PicController::class, 'getPicTerakhir'])
+               ->name('pic.get');
+
+          /*
+          |--------------------------------------------------------------------------
+          | Mutasi Aset
+          |--------------------------------------------------------------------------
+          */
+          // Route::resource('mutasi', MutasiController::class);
+
+          });
 
         // Mutasi Aset (uncomment setelah MutasiController dibuat)
         // Route::resource('mutasi', MutasiController::class);
 
         // PIC (uncomment setelah PicController dibuat)
         // Route::resource('pic', PicController::class);
-
-    });
 
     /*
     |----------------------------------------------------------------------
