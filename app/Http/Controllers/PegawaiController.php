@@ -21,17 +21,23 @@ class PegawaiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nip'       => 'required|unique:pegawais,nip|max:30',
-            'nama'      => 'required|max:255',
-            'jabatan'   => 'nullable|max:255',
-            'unit_kerja'=> 'nullable|max:255',
+            'nip'        => 'required|unique:pegawais,nip|max:30',
+            'nama'       => 'required|max:255',
+            'jabatan'    => 'nullable|max:255',
+            'unit_kerja' => 'nullable|max:255',
         ], [
             'nip.required'  => 'NIP wajib diisi.',
             'nip.unique'    => 'NIP sudah terdaftar.',
             'nama.required' => 'Nama wajib diisi.',
         ]);
 
-        Pegawai::create($request->only('nip', 'nama', 'jabatan', 'unit_kerja') + ['is_active' => true]);
+        Pegawai::create([
+            'nip'        => $request->nip,
+            'nama'       => $request->nama,
+            'jabatan'    => $request->jabatan,
+            'unit_kerja' => $request->unit_kerja,
+            'is_active'  => true,
+        ]);
 
         return redirect()->route('pegawai.index')
                          ->with('success', 'Pegawai berhasil ditambahkan.');
@@ -45,13 +51,24 @@ class PegawaiController extends Controller
     public function update(Request $request, Pegawai $pegawai)
     {
         $request->validate([
-            'nip'       => 'required|max:30|unique:pegawais,nip,' . $pegawai->id,
-            'nama'      => 'required|max:255',
-            'jabatan'   => 'nullable|max:255',
-            'unit_kerja'=> 'nullable|max:255',
+            'nip'        => 'required|max:30|unique:pegawais,nip,' . $pegawai->id,
+            'nama'       => 'required|max:255',
+            'jabatan'    => 'nullable|max:255',
+            'unit_kerja' => 'nullable|max:255',
+            'is_active'  => 'nullable|in:0,1',  
+        ], [
+            'nip.required'  => 'NIP wajib diisi.',
+            'nip.unique'    => 'NIP sudah terdaftar.',
+            'nama.required' => 'Nama wajib diisi.',
         ]);
 
-        $pegawai->update($request->only('nip', 'nama', 'jabatan', 'unit_kerja', 'is_active'));
+        $pegawai->update([
+            'nip'        => $request->nip,
+            'nama'       => $request->nama,
+            'jabatan'    => $request->jabatan,
+            'unit_kerja' => $request->unit_kerja,
+            'is_active'  => $request->input('is_active', 1), 
+        ]);
 
         return redirect()->route('pegawai.index')
                          ->with('success', 'Data pegawai berhasil diperbarui.');
@@ -64,14 +81,14 @@ class PegawaiController extends Controller
                          ->with('success', 'Pegawai berhasil dihapus.');
     }
 
-    // ── API endpoint: dipanggil JS saat dropdown nama dipilih ─────────────
+    // API endpoint – auto-load NIP di dropdown form ruangan
     public function getNip(Pegawai $pegawai)
     {
         return response()->json([
-            'nip'       => $pegawai->nip,
-            'nama'      => $pegawai->nama,
-            'jabatan'   => $pegawai->jabatan,
-            'unit_kerja'=> $pegawai->unit_kerja,
+            'nip'        => $pegawai->nip,
+            'nama'       => $pegawai->nama,
+            'jabatan'    => $pegawai->jabatan,
+            'unit_kerja' => $pegawai->unit_kerja,
         ]);
     }
 }
