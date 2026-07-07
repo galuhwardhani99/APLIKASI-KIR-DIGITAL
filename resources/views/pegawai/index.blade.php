@@ -30,13 +30,13 @@
         <table class="table table-striped table-hover mb-0">
             <thead class="thead-light">
                 <tr>
-                    <th>#</th>
+                    <th width="40">#</th>
                     <th>NIP</th>
                     <th>Nama</th>
                     <th>Jabatan</th>
                     <th>Unit Kerja</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Aksi</th>
+                    <th class="text-center" width="90">Status</th>
+                    <th class="text-center" width="100">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,17 +56,20 @@
                     </td>
                     <td class="text-center">
                         <a href="{{ route('pegawai.edit', $p) }}"
-                           class="btn btn-warning btn-xs">
+                           class="btn btn-warning btn-xs"
+                           title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{{ route('pegawai.destroy', $p) }}"
-                              method="POST" class="d-inline"
-                              onsubmit="return confirm('Hapus pegawai {{ $p->nama }}?')">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-danger btn-xs">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        {{-- Tombol hapus → trigger modal --}}
+                        <button type="button"
+                                class="btn btn-danger btn-xs btn-hapus"
+                                data-id="{{ $p->id }}"
+                                data-nama="{{ $p->nama }}"
+                                data-toggle="modal"
+                                data-target="#modalHapus"
+                                title="Hapus">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
                 @empty
@@ -88,4 +91,57 @@
     @endif
 </div>
 
+{{-- ══════════════════════════════════════════ --}}
+{{-- MODAL KONFIRMASI HAPUS                     --}}
+{{-- ══════════════════════════════════════════ --}}
+<div class="modal fade" id="modalHapus" tabindex="-1" role="dialog" aria-labelledby="labelModalHapus" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white py-2">
+                <h6 class="modal-title" id="labelModalHapus">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> Konfirmasi Hapus
+                </h6>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-user-times fa-3x text-danger mb-3"></i>
+                <p class="mb-1">Hapus pegawai ini?</p>
+                <p class="font-weight-bold mb-0" id="namaHapus">—</p>
+            </div>
+
+            <div class="modal-footer justify-content-center py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Batal
+                </button>
+                <form id="formHapus" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash mr-1"></i> Ya, Hapus
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+// Isi modal dengan data baris yang diklik
+document.querySelectorAll('.btn-hapus').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const id   = this.dataset.id;
+        const nama = this.dataset.nama;
+        document.getElementById('namaHapus').textContent = nama;
+        document.getElementById('formHapus').action = '/pegawai/' + id;
+    });
+});
+</script>
+@endpush
