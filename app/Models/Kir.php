@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kir extends Model
 {
+    protected $table = 'kirs';
+
     protected $fillable = [
         'ruangan_id',
         'pengguna_barang',
@@ -15,23 +17,34 @@ class Kir extends Model
         'keterangan',
     ];
 
+    protected $casts = [
+        'tanggal' => 'date', 
+    ];
+
     public function ruangan()
     {
         return $this->belongsTo(Ruangan::class);
     }
 
-    public function pengurusBarang()
+    public function items()
     {
-        return $this->belongsTo(Pegawai::class, 'pengurus_barang_id');
-    }
-
-    public function penanggungJawab()
-    {
-        return $this->belongsTo(Pegawai::class, 'penanggung_jawab_id');
+        return $this->hasMany(KirItem::class, 'kir_id', 'id');
     }
 
     public function asets()
     {
-        return $this->belongsToMany(Aset::class, 'aset_kir');
+        return $this->belongsToMany(Aset::class, 'aset_kir', 'kir_id', 'aset_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public static function generateNomor(string $tanggal): string
+    {
+        $tahun = date('Y', strtotime($tanggal));
+        $count = self::whereYear('tanggal', $tahun)->count() + 1;
+        return sprintf('KIR/%s/%03d', $tahun, $count);
     }
 }

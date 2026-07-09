@@ -140,39 +140,6 @@
                         </ul>
                     </li>
 
-                    {{-- KIR --}}
-                    <li class="nav-item {{ request()->routeIs('kir.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->routeIs('kir.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-clipboard-list"></i>
-                            <p>
-                                KIR
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-
-                        <ul class="nav nav-treeview">
-
-                            @if(Auth::user()->role === 'admin')
-                            <li class="nav-item">
-                                <a href="{{ route('kir.create') }}"
-                                class="nav-link {{ request()->routeIs('kir.create') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Buat KIR</p>
-                                </a>
-                            </li>
-                            @endif
-
-                            <li class="nav-item">
-                                <a href="{{ route('kir.index') }}"
-                                class="nav-link {{ request()->routeIs('kir.index') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Daftar KIR</p>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </li>
-
                    {{-- Data PIC --}}
                     <li class="nav-item">
                         <a href="#" class="nav-link">
@@ -215,7 +182,39 @@
                     </li>
                     @endif
 
-                    <li class="nav-header">TRANSAKSI</li>
+                    <li class="nav-header">INVENTARISASI</li>
+                    {{-- KIR --}}
+                    <li class="nav-item {{ request()->routeIs('kir.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('kir.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>
+                                KIR
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+
+                        <ul class="nav nav-treeview">
+
+                            @if(Auth::user()->role === 'admin')
+                            <li class="nav-item">
+                                <a href="{{ route('kir.index') }}"
+                                class="nav-link {{ request()->routeIs('kir.create') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Buat KIR</p>
+                                </a>
+                            </li>
+                            @endif
+
+                            <li class="nav-item">
+                                <a href="{{ route('kir.index') }}"
+                                class="nav-link {{ request()->routeIs('kir.index') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Daftar KIR</p>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
 
                     {{-- Mutasi Aset --}}
                     @if(Auth::user()->role === 'admin')
