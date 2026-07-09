@@ -9,7 +9,7 @@ class AsetController extends Controller
 {
     public function index()
     {
-        $asets = Aset::with('ruangan')->latest()->get();
+        $asets = Aset::with('ruangan')->oldest()->get();
         return view('aset.index', compact('asets'));
     }
 
@@ -25,6 +25,7 @@ class AsetController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'jenis'                   => 'required|in:peralatan_mesin,aset_tetap_lainnya',
             'kode_barang'             => 'nullable|string|max:50',
             'nama_barang'             => 'required|string|max:255',
             'spesifikasi_nama_barang' => 'nullable|string|max:255',
@@ -56,6 +57,7 @@ class AsetController extends Controller
     public function update(Request $request, Aset $aset)
     {
         $validated = $request->validate([
+            'jenis'                   => 'required|in:peralatan_mesin,aset_tetap_lainnya',
             'kode_barang'             => 'nullable|string|max:50',
             'nama_barang'             => 'required|string|max:255',
             'spesifikasi_nama_barang' => 'nullable|string|max:255',

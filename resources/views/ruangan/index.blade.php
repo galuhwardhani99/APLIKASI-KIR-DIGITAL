@@ -44,9 +44,7 @@
                 <tr>
                     <th width="60">No</th>
                     <th>Nama Ruangan</th>
-                    <th>Keterangan</th>
-                    <th width="120">Jumlah Aset</th>
-                    <th width="170">Aksi</th>
+                    <th width="120">Aksi</th>
                 </tr>
 
             </thead>
@@ -61,21 +59,7 @@
 
                     <td>{{ $ruangan->nama_ruangan }}</td>
 
-                    <td>{{ $ruangan->keterangan ?: '-' }}</td>
-
                     <td class="text-center">
-                        <span class="badge badge-info">
-                            {{ $ruangan->asets->count() }}
-                        </span>
-                    </td>
-
-                    <td class="text-center">
-
-                        <a href="{{ route('ruangan.kelola-aset', $ruangan->id) }}"
-                           class="btn btn-info btn-sm"
-                           title="Kelola Aset">
-                            <i class="fas fa-boxes"></i>
-                        </a>
 
                         <a href="{{ route('ruangan.edit', $ruangan->id) }}"
                            class="btn btn-warning btn-sm"

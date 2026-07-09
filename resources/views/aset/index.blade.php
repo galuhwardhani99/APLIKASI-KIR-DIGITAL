@@ -8,7 +8,13 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.7/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
+<style>
+    #tableAset thead th {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -29,19 +35,22 @@
         <table id="tableAset" class="table table-bordered table-striped table-hover" style="width:100%">
             <thead class="thead-light">
                 <tr>
-                    <th>No</th>
-                    <th>NIBAR</th>
-                    <th>Nomor Register</th>
-                    <th>Kode Barang</th>
-                    <th>Nama Barang</th>
-                    <th>Spesifikasi</th>
+                    <th rowspan="2">No</th>
+                    <th rowspan="2">NIBAR</th>
+                    <th rowspan="2">Nomor Register</th>
+                    <th rowspan="2">Kode Barang</th>
+                    <th rowspan="2">Nama Barang</th>
+                    <th rowspan="2">Spesifikasi Nama Barang</th>
+                    <th colspan="2">Spesifikasi Barang</th>
+                    <th rowspan="2">Jumlah</th>
+                    <th rowspan="2">Satuan</th>
+                    <th rowspan="2">Keterangan</th>
+                    <th rowspan="2">Kondisi</th>
+                    <th rowspan="2" style="width:110px">Aksi</th>
+                </tr>
+                <tr>
                     <th>Merk/Tipe</th>
-                    <th>Tahun</th>
-                    <th>Jumlah</th>
-                    <th>Satuan</th>
-                    <th>Ruangan</th>
-                    <th>Kondisi</th>
-                    <th style="width:110px">Aksi</th>
+                    <th>Tahun Perolehan</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,7 +66,7 @@
                         <td>{{ $aset->tahun_perolehan }}</td>
                         <td>{{ rtrim(rtrim(number_format($aset->jumlah, 2, '.', ''), '0'), '.') }}</td>
                         <td>{{ $aset->satuan }}</td>
-                        <td>{{ $aset->ruangan->nama_ruangan ?? '-' }}</td>
+                        <td>{{ $aset->keterangan ?? '-' }}</td>
                         <td>
                             @php
                                 $badge = [
@@ -91,21 +100,42 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 <script>
     $(function () {
         $('#tableAset').DataTable({
+            dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-6"i><"col-sm-6"p>>',
+            lengthMenu: [5, 10, 25, 50, 100],
+            pageLength: 10,
             language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ baris",
-                info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-                paginate: { previous: "Sebelumnya", next: "Selanjutnya" },
+                lengthMenu: "Tampilkan _MENU_ menu",
+                search: "",
+                searchPlaceholder: "",
                 zeroRecords: "Data tidak ditemukan",
-                emptyTable: "Belum ada data aset"
+                emptyTable: "Belum ada data aset",
+                info: "Halaman _PAGE_ dari _PAGES_",
+                infoEmpty: "Halaman 0 dari 0",
+                infoFiltered: "",
+                paginate: {
+                    previous: "<",
+                    next: ">"
+                }
             },
-            order: [[10, 'asc'], [0, 'asc']] // urut berdasarkan kolom Ruangan (index 10), lalu No (index 0)
+            columnDefs: [
+                { type: 'string', targets: 1 },
+                { type: 'string', targets: 2 },
+                { orderable: false, targets: 12 }
+            ],
+            order: [[1, 'asc']]
         });
+
+        // Custom label "Cari Menu:" di depan search box
+        $('#tableAset_filter label').contents().filter(function() {
+            return this.nodeType === 3;
+        }).first().replaceWith('Cari Menu: ');
     });
 </script>
 @endpush

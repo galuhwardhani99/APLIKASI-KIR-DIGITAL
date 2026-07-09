@@ -51,6 +51,22 @@
             <hr>
 
             <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Jenis Aset <span class="text-danger">*</span></label>
+                        <select name="jenis" class="form-control" required>
+                            <option value="peralatan_mesin" {{ old('jenis') == 'peralatan_mesin' ? 'selected' : '' }}>
+                                Peralatan dan Mesin
+                            </option>
+                            <option value="aset_tetap_lainnya" {{ old('jenis') == 'aset_tetap_lainnya' ? 'selected' : '' }}>
+                                Aset Tetap Lainnya
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Kode Barang</label>

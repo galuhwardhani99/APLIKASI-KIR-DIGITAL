@@ -48,16 +48,6 @@
                     required>
             </div>
 
-            <div class="form-group">
-                <label>Keterangan</label>
-
-                <textarea
-                    name="keterangan"
-                    rows="3"
-                    class="form-control"
-                    placeholder="Keterangan tambahan (opsional)">{{ old('keterangan') }}</textarea>
-            </div>
-
         </div>
 
         <div class="card-footer">
