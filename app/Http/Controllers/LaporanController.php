@@ -11,9 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
 {
-    /**
-     * Form setting parameter & tanda tangan sebelum cetak
-     */
+    // ── Form inventarisasi (setting parameter + tanda tangan) ────────────
     public function cetakKirForm(Kir $kir)
     {
         $kir->load([
@@ -26,12 +24,48 @@ class LaporanController extends Controller
             ->orderBy('nama')
             ->get();
 
-        return view('laporan.cetak-kir', compact('kir', 'pegawaiList'));
+        // Cari ID pegawai berdasarkan nama pengguna_barang yang tersimpan
+        $selectedPenggunaId = null;
+        if ($kir->pengguna_barang) {
+            $pg = Pegawai::where('nama', $kir->pengguna_barang)->first();
+            $selectedPenggunaId = $pg?->id;
+        }
+
+        return view('laporan.cetak-kir', compact('kir', 'pegawaiList', 'selectedPenggunaId'));
     }
 
-    /**
-     * Validasi parameter form cetak (dipakai untuk PDF & Excel)
-     */
+    // ── Simpan perubahan data inventarisasi ke tabel kirs ────────────────
+    public function simpanInventarisasi(Request $request, Kir $kir)
+    {
+        $request->validate([
+            'pengguna_barang_id'      => 'required|exists:pegawais,id',
+            'pengguna_barang'         => 'required|string|max:255',
+            'periode'                 => 'required|string|max:100',
+            'kode_lokasi'             => 'nullable|string|max:100',
+            'tanggal_ttd'             => 'required|date',
+            'penandatangan_kiri_id'   => 'required|exists:pegawais,id',
+            'penandatangan_kanan_id'  => 'required|exists:pegawais,id',
+        ], [
+            'pengguna_barang_id.required'     => 'Pengguna Barang wajib dipilih.',
+            'periode.required'                => 'Periode wajib diisi.',
+            'tanggal_ttd.required'            => 'Tanggal TTD wajib diisi.',
+            'penandatangan_kiri_id.required'  => 'Penandatangan kiri wajib dipilih.',
+            'penandatangan_kanan_id.required' => 'Penandatangan kanan wajib dipilih.',
+        ]);
+
+        $kir->update([
+            'pengguna_barang'     => $request->pengguna_barang,       // nama dari hidden field
+            'pengurus_barang_id'  => $request->penandatangan_kiri_id,
+            'penanggung_jawab_id' => $request->penandatangan_kanan_id,
+            'keterangan'          => $request->periode,               // simpan periode di keterangan
+        ]);
+
+        return redirect()
+            ->route('laporan.cetak-kir.form', $kir->id)
+            ->with('success', 'Data inventarisasi berhasil disimpan.');
+    }
+
+    // ── Validasi form cetak (shared) ─────────────────────────────────────
     private function validateCetak(Request $request): array
     {
         return $request->validate([
@@ -43,16 +77,14 @@ class LaporanController extends Controller
             'penandatangan_kanan_id'  => 'required|exists:pegawais,id',
         ], [
             'periode.required'                => 'Periode wajib diisi.',
-            'pengguna_barang.required'         => 'Pengguna Barang wajib diisi.',
-            'tanggal_ttd.required'             => 'Tanggal TTD wajib diisi.',
-            'penandatangan_kiri_id.required'   => 'Penandatangan sisi kiri wajib dipilih.',
-            'penandatangan_kanan_id.required'  => 'Penandatangan sisi kanan wajib dipilih.',
+            'pengguna_barang.required'        => 'Pengguna Barang wajib diisi.',
+            'tanggal_ttd.required'            => 'Tanggal TTD wajib diisi.',
+            'penandatangan_kiri_id.required'  => 'Penandatangan kiri wajib dipilih.',
+            'penandatangan_kanan_id.required' => 'Penandatangan kanan wajib dipilih.',
         ]);
     }
 
-    /**
-     * Generate & download PDF
-     */
+    // ── Generate & download PDF ──────────────────────────────────────────
     public function cetakKirPdf(Request $request, Kir $kir)
     {
         $data = $this->validateCetak($request);
@@ -75,9 +107,7 @@ class LaporanController extends Controller
         return $pdf->download($namaFile);
     }
 
-    /**
-     * Generate & download Excel
-     */
+    // ── Generate & download Excel ─────────────────────────────────────────
     public function cetakKirExcel(Request $request, Kir $kir)
     {
         $data = $this->validateCetak($request);

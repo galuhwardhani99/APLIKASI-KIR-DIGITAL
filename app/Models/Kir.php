@@ -18,8 +18,17 @@ class Kir extends Model
     ];
 
     protected $casts = [
-        'tanggal' => 'date', 
+        'tanggal' => 'date',
     ];
+
+    // ── Accessor: $kir->nomor_kir ─────────────────────────────────────────
+    // Dipakai di LaporanController dan KirExport
+    // Format: KIR/2026/001
+    public function getNomorKirAttribute(): string
+    {
+        $tahun = $this->tanggal ? $this->tanggal->format('Y') : date('Y');
+        return sprintf('KIR/%s/%03d', $tahun, $this->id);
+    }
 
     public function ruangan()
     {
