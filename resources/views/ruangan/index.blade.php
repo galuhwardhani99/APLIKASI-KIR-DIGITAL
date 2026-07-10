@@ -14,8 +14,9 @@
 @section('content')
 
 @if(session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
 </div>
 @endif
 
@@ -67,24 +68,18 @@
                             <i class="fas fa-edit"></i>
                         </a>
 
-                        <form action="{{ route('ruangan.destroy', $ruangan->id) }}"
-                              method="POST"
-                              class="d-inline"
-                              onsubmit="return confirm('Yakin ingin menghapus ruangan ini?')">
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm btn-hapus"
+                            data-id="{{ $ruangan->id }}"
+                            data-nama="{{ $ruangan->nama_ruangan }}"
+                            data-toggle="modal"
+                            data-target="#modalHapus"
+                            title="Hapus">
 
-                            @csrf
-                            @method('DELETE')
+                            <i class="fas fa-trash"></i>
 
-                            <button
-                                type="submit"
-                                class="btn btn-danger btn-sm"
-                                title="Hapus">
-
-                                <i class="fas fa-trash"></i>
-
-                            </button>
-
-                        </form>
+                        </button>
 
                     </td>
 
@@ -95,6 +90,75 @@
             </tbody>
 
         </table>
+
+    </div>
+
+</div>
+
+{{-- ============================= --}}
+{{-- MODAL KONFIRMASI HAPUS --}}
+{{-- ============================= --}}
+<div class="modal fade" id="modalHapus" tabindex="-1" role="dialog" aria-labelledby="labelModalHapus" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white py-2">
+
+                <h6 class="modal-title" id="labelModalHapus">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    Konfirmasi Hapus
+                </h6>
+
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+
+            </div>
+
+            <div class="modal-body text-center py-4">
+
+                <i class="fas fa-door-open fa-3x text-danger mb-3"></i>
+
+                <p class="mb-1">
+                    Hapus ruangan berikut?
+                </p>
+
+                <p class="font-weight-bold mb-0" id="namaHapus">
+                    -
+                </p>
+
+            </div>
+
+            <div class="modal-footer justify-content-center py-2">
+
+                <button type="button"
+                        class="btn btn-secondary btn-sm"
+                        data-dismiss="modal">
+
+                    <i class="fas fa-times mr-1"></i>
+                    Batal
+
+                </button>
+
+                <form id="formHapus" method="POST">
+
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit" class="btn btn-danger btn-sm">
+
+                        <i class="fas fa-trash mr-1"></i>
+                        Ya, Hapus
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -124,6 +188,20 @@ $(function () {
             zeroRecords: "Data tidak ditemukan",
             emptyTable: "Belum ada data ruangan"
         }
+
+    });
+
+    // ============================
+    // Modal Hapus
+    // ============================
+
+    $('.btn-hapus').on('click', function () {
+
+        let id = $(this).data('id');
+        let nama = $(this).data('nama');
+
+        $('#namaHapus').text(nama);
+        $('#formHapus').attr('action', '/ruangan/' + id);
 
     });
 
