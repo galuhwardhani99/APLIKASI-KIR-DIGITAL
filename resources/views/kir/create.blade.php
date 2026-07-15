@@ -24,8 +24,7 @@
                     <strong>{{ $ruangan->nama_ruangan }}</strong>
                 </h5>
                 <small class="text-muted">
-                    Kode Lokasi: {{ $ruangan->kode_lokasi ?? '-' }} &nbsp;|&nbsp;
-                    Pengguna Barang: {{ $ruangan->pengguna_barang ?? '-' }}
+                    Kode Lokasi: {{ $ruangan->kode_lokasi ?? '-' }}
                 </small>
             </div>
             <div class="col-md-3">

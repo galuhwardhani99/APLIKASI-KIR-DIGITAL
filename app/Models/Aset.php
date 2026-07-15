@@ -9,7 +9,7 @@ class Aset extends Model
     protected $table = 'asets';
 
     protected $fillable = [
-        'ruangan_id', 'no_urut', 'nibar', 'nomor_register',
+        'ruangan_id', 'klasifikasi_barang_id', 'jenis', 'no_urut', 'nibar', 'nomor_register',
         'kode_barang', 'nama_barang', 'spesifikasi_nama_barang',
         'merk_tipe', 'tahun_perolehan', 'jumlah', 'satuan',
         'keterangan', 'kode_aset', 'qr_code_path', 'kondisi',
@@ -19,6 +19,11 @@ class Aset extends Model
     public function ruangan()
     {
         return $this->belongsTo(Ruangan::class);
+    }
+
+    public function klasifikasiBarang()
+    {
+        return $this->belongsTo(KlasifikasiBarang::class);
     }
 
     public function kirs()

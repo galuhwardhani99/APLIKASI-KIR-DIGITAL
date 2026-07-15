@@ -8,11 +8,20 @@
     .header-title div { font-size: 13px; font-weight: bold; }
     table.info { width: 100%; margin-bottom: 8px; border-collapse: collapse; }
     table.info td { padding: 2px 4px; vertical-align: top; font-size: 11px; }
-    table.data { width: 100%; border-collapse: collapse; margin-top: 5px; }
-    table.data th, table.data td { border: 1px solid #000; padding: 4px; font-size: 10px; }
+    table.data { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; }
+    table.data th, table.data td { border: 1px solid #000; padding: 4px; font-size: 10px; word-wrap: break-word; }
     table.data th { text-align: center; background-color: #f0f0f0; font-weight: bold; }
-    table.data td { text-align: center; }
+    table.data td { text-align: center; vertical-align: middle; }
     table.data td.left { text-align: left; }
+
+    /* Kolom NIBAR & Nomor Register: wrap rapi, jangan melebar ke kanan */
+    table.data th:nth-child(2), table.data td:nth-child(2),
+    table.data th:nth-child(3), table.data td:nth-child(3) {
+        width: 60px;
+        word-break: break-all;
+        text-align: center;
+    }
+
     .catatan { margin-top: 15px; font-size: 10px; }
     table.ttd-table { width: 100%; margin-top: 30px; border-collapse: collapse; }
     table.ttd-table td { text-align: center; vertical-align: top; padding: 4px; width: 50%; font-size: 11px; }
