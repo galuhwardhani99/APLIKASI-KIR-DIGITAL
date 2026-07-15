@@ -16,7 +16,7 @@
     <div class="card-header">
         <h3 class="card-title">
             <i class="fas fa-clipboard-list mr-1"></i>
-            Pilih Ruangan
+            Pilih Ruangan Terlebih dahulu
         </h3>
     </div>
 
