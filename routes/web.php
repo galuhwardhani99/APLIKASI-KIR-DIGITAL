@@ -80,6 +80,10 @@ Route::middleware('auth')->group(function () {
     Route::get('api/pegawai/{pegawai}/nip', [PegawaiController::class, 'getNip'])->name('api.pegawai.nip');
     Route::get('pic/ruangan/{ruangan}',     [PicController::class, 'getPicTerakhir'])->name('pic.get');
 
+    Route::get('api/aset/by-klasifikasi/{id}', 
+    [AsetController::class, 'getAsetByKlasifikasi']
+          )->name('aset.byKlasifikasi');
+
     /*
     |----------------------------------------------------------------------
     | LAPORAN – admin + auditor (form lihat & cetak)
