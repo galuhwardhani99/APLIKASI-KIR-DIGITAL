@@ -64,6 +64,19 @@
                         </select>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Jenis Barang <small class="text-muted">(klasifikasi BMD)</small></label>
+                        <select name="klasifikasi_barang_id" class="form-control">
+                            <option value="">-- Pilih Jenis Barang --</option>
+                            @foreach($klasifikasiList as $k)
+                                <option value="{{ $k->id }}" {{ old('klasifikasi_barang_id') == $k->id ? 'selected' : '' }}>
+                                    {{ $k->kode }} — {{ $k->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="row">

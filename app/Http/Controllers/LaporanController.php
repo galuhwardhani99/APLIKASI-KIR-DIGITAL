@@ -26,9 +26,11 @@ class LaporanController extends Controller
 
         // Cari ID pegawai berdasarkan nama pengguna_barang yang tersimpan
         $selectedPenggunaId = null;
-        if ($kir->pengguna_barang) {
-            $pg = Pegawai::where('nama', $kir->pengguna_barang)->first();
-            $selectedPenggunaId = $pg?->id;
+        if (!empty($kir->pengguna_barang)) {
+            $selectedPenggunaId = Pegawai::where(
+                'nama',
+                $kir->pengguna_barang
+            )->value('id');
         }
 
         return view('laporan.cetak-kir', compact('kir', 'pegawaiList', 'selectedPenggunaId'));

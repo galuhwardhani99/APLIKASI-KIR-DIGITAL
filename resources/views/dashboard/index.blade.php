@@ -20,7 +20,7 @@
                 <p>Total Aset</p>
             </div>
             <div class="icon"><i class="fas fa-box"></i></div>
-            <a href="#" class="small-box-footer">
+            <a href="{{ route('aset.index') }}" class="small-box-footer">
                 Lihat Detail <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -34,7 +34,7 @@
                 <p>Aset Kondisi Baik</p>
             </div>
             <div class="icon"><i class="fas fa-check-circle"></i></div>
-            <a href="#" class="small-box-footer">
+            <a href="{{ route('aset.index', ['kondisi' => 'baik']) }}" class="small-box-footer">
                 Lihat Detail <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -48,7 +48,7 @@
                 <p>Aset Rusak</p>
             </div>
             <div class="icon"><i class="fas fa-tools"></i></div>
-            <a href="#" class="small-box-footer">
+            <a href="{{ route('aset.index', ['kondisi' => 'rusak']) }}" class="small-box-footer">
                 Lihat Detail <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -62,7 +62,7 @@
                 <p>Aset Hilang</p>
             </div>
             <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <a href="#" class="small-box-footer">
+            <a href="{{ route('aset.index', ['kondisi' => 'hilang']) }}" class="small-box-footer">
                 Lihat Detail <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>

@@ -5,8 +5,24 @@
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('kir.list', $kir->ruangan_id) }}">Daftar KIR</a></li>
-    <li class="breadcrumb-item active">Inventarisasi</li>
+    <li class="breadcrumb-item active">Cetak KIR</li>
 @endsection
+
+@push('styles')
+<style>
+    .table td:nth-child(2),
+    .table td:nth-child(3) {
+        word-break: break-all;
+        white-space: normal;
+        max-width: 350px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.5;
+        font-size: 13px;
+        padding: 8px 6px;
+    }
+</style>
+@endpush
 
 @section('content')
 
@@ -253,9 +269,11 @@ document.getElementById('selectPenggunaBarang').addEventListener('change', funct
 // Isi hidden field saat halaman load (jika ada nilai default)
 (function () {
     const sel = document.getElementById('selectPenggunaBarang');
+    if (!sel) return;
     const opt = sel.options[sel.selectedIndex];
     if (opt && opt.value) {
-        document.getElementById('hiddenPenggunaBarang').value = opt.dataset.nama || '';
+        document.getElementById('hiddenPenggunaBarang').value =
+            opt.dataset.nama || '';
     }
 })();
 </script>

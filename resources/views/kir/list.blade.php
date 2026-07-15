@@ -8,9 +8,24 @@
     <li class="breadcrumb-item active">{{ $ruangan->nama_ruangan }}</li>
 @endsection
 
+@push('styles')
+<style>
+    table td:nth-child(2),
+    table td:nth-child(3) {
+        word-break: break-all;
+        white-space: normal;
+        max-width: 350px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.5;
+        font-size: 13px;
+        padding: 8px 6px;
+    }
+</style>
+@endpush
+
 @section('content')
 
-{{-- NOTIFIKASI SUKSES --}}
 @if(session('success'))
 <div class="alert alert-success alert-dismissible fade show">
     <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
@@ -29,10 +44,6 @@
                 </h5>
                 <small class="text-muted">
                     Kode Lokasi: <strong>{{ $ruangan->kode_lokasi ?? '-' }}</strong>
-                    &nbsp;|&nbsp;
-                    Pengguna Barang: <strong>{{ $ruangan->pengguna_barang ?? '-' }}</strong>
-                    &nbsp;|&nbsp;
-                    Pengurus: <strong>{{ $ruangan->pengurusBarang?->nama ?? '-' }}</strong>
                 </small>
             </div>
             <div class="col-md-4 text-md-right mt-2 mt-md-0">
@@ -49,7 +60,7 @@
     </div>
 </div>
 
-{{-- DAFTAR KIR + ASET PER KIR --}}
+{{-- DAFTAR KIR --}}
 @forelse($kirs as $i => $kir)
 
 <div class="card card-outline card-primary mb-3">
@@ -65,17 +76,19 @@
                 <span class="badge badge-info ml-2">{{ $kir->items_count }} aset</span>
             </h3>
             <small class="text-muted">
-                Pengguna Barang: {{ $kir->pengguna_barang ?? '-' }}
+                @if($kir->pengguna_barang)
+                    Pengguna Barang: {{ $kir->pengguna_barang }}
+                @endif
                 @if($kir->keterangan)
-                    &nbsp;|&nbsp; Ket: {{ $kir->keterangan }}
+                    &nbsp;|&nbsp; {{ $kir->keterangan }}
                 @endif
             </small>
         </div>
         <div class="d-flex align-items-center">
             <button type="button"
-                    class="btn btn-outline-primary btn-sm mr-1 btn-toggle"
+                    class="btn btn-outline-secondary btn-sm mr-1 btn-toggle"
                     data-target="#kirBody{{ $kir->id }}"
-                    title="Tampilkan/Sembunyikan Aset">
+                    title="Tampilkan/Sembunyikan">
                 <i class="fas fa-chevron-down"></i>
             </button>
             <a href="{{ route('kir.show', $kir->id) }}"
@@ -83,7 +96,7 @@
                 <i class="fas fa-eye"></i>
             </a>
             <a href="{{ route('laporan.cetak-kir.form', $kir->id) }}"
-               class="btn btn-primary btn-sm mr-1" title="Cetak KIR">
+               class="btn btn-primary btn-sm mr-1" title="Inventarisasi">
                 <i class="fas fa-print"></i>
             </a>
             @if(Auth::user()->role === 'admin')
@@ -100,71 +113,76 @@
         </div>
     </div>
 
-    {{-- Tabel Aset --}}
-    <div id="kirBody{{ $kir->id }}" class="kir-body">
-        <div class="card-body p-0 table-responsive">
-            <table class="table table-bordered table-hover table-sm mb-0">
-                <thead style="background-color:#e8f4f8;">
-                    <tr>
-                        <th width="40">No</th>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Spesifikasi</th>
-                        <th>Merk/Tipe</th>
-                        <th class="text-center">Jumlah</th>
-                        <th>Satuan</th>
-                        <th>Keterangan</th>
-                        <th class="text-center">Kondisi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($kir->items as $j => $item)
-                    @php
-                        $a = $item->aset;
-                        $badge = [
-                            'baik'         => 'success',
-                            'rusak_ringan' => 'warning',
-                            'rusak_berat'  => 'danger',
-                            'hilang'       => 'dark',
-                        ][$a->kondisi] ?? 'secondary';
-                    @endphp
-                    <tr>
-                        <td>{{ $j + 1 }}</td>
-                        <td><small>{{ $a->kode_barang ?? '-' }}</small></td>
-                        <td><strong>{{ $a->nama_barang }}</strong></td>
-                        <td><small>{{ $a->spesifikasi_nama_barang ?? '-' }}</small></td>
-                        <td>{{ $a->merk_tipe ?? '-' }}</td>
-                        <td class="text-center">
-                            {{ rtrim(rtrim(number_format($a->jumlah, 2, '.', ''), '0'), '.') }}
-                        </td>
-                        <td>{{ $a->satuan ?? '-' }}</td>
-                        <td>{{ $a->keterangan ?? '-' }}</td>
-                        <td class="text-center">
-                            <span class="badge badge-{{ $badge }}">
-                                {{ str_replace('_', ' ', ucfirst($a->kondisi)) }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-3">
-                            Belum ada aset dalam KIR ini.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    {{-- Tabel Aset — flat, kolom sesuai PDF/Excel Cetak KIR --}}
+    <div id="kirBody{{ $kir->id }}" class="table-responsive">
+        <table class="table table-bordered table-hover table-sm mb-0">
+            <thead class="thead-light">
+                <tr>
+                    <th class="text-center align-middle" style="width:40px">No</th>
+                    <th class="align-middle">NIBAR</th>
+                    <th class="align-middle">Nomor Register</th>
+                    <th class="align-middle">Kode Barang</th>
+                    <th class="align-middle">Nama Barang</th>
+                    <th class="align-middle">Spesifikasi Nama Barang</th>
+                    <th class="align-middle">Merk/Tipe</th>
+                    <th class="text-center align-middle">Tahun Perolehan</th>
+                    <th class="text-center align-middle">Jumlah</th>
+                    <th class="align-middle">Satuan</th>
+                    <th class="align-middle">Ket</th>
+                    <th class="text-center align-middle">Kondisi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($kir->items as $j => $item)
+                @php
+                    $a = $item->aset;
+                    $badge = [
+                        'baik'         => 'success',
+                        'rusak_ringan' => 'warning',
+                        'rusak_berat'  => 'danger',
+                        'hilang'       => 'dark',
+                    ][$a->kondisi] ?? 'secondary';
+                @endphp
+                <tr>
+                    <td class="text-center">{{ $j + 1 }}</td>
+                    <td>{{ $a->nibar ?? '-' }}</td>
+                    <td>{{ $a->nomor_register ?? '-' }}</td>
+                    <td>{{ $a->kode_barang ?? '-' }}</td>
+                    <td><strong>{{ $a->nama_barang }}</strong></td>
+                    <td>{{ $a->spesifikasi_nama_barang ?? '-' }}</td>
+                    <td>{{ $a->merk_tipe ?? '-' }}</td>
+                    <td class="text-center">{{ $a->tahun_perolehan ?? '-' }}</td>
+                    <td class="text-center">
+                        {{ rtrim(rtrim(number_format($a->jumlah, 2, '.', ''), '0'), '.') }}
+                    </td>
+                    <td>{{ $a->satuan ?? '-' }}</td>
+                    <td>{{ $a->keterangan ?? '-' }}</td>
+                    <td class="text-center">
+                        <span class="badge badge-{{ $badge }}">
+                            {{ str_replace('_', ' ', ucfirst($a->kondisi)) }}
+                        </span>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="12" class="text-center text-muted py-3">
+                        Belum ada aset dalam KIR ini.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-
 </div>
 
 @empty
 
 <div class="card card-outline card-secondary">
     <div class="card-body text-center py-5">
-        <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
-        <p class="text-muted mb-2">Belum ada KIR untuk ruangan <strong>{{ $ruangan->nama_ruangan }}</strong>.</p>
+        <i class="fas fa-clipboard fa-3x text-muted mb-3 d-block"></i>
+        <p class="text-muted mb-2">
+            Belum ada KIR untuk ruangan <strong>{{ $ruangan->nama_ruangan }}</strong>.
+        </p>
         @if(Auth::user()->role === 'admin')
         <a href="{{ route('kir.create', $ruangan->id) }}" class="btn btn-primary">
             <i class="fas fa-plus mr-1"></i> Buat KIR Sekarang
