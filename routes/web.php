@@ -137,10 +137,10 @@ Route::middleware('auth')->group(function () {
         Route::post('kir/ruangan/{ruangan}/simpan', [KirController::class, 'store'])->name('kir.store');
         Route::delete('kir/{kir}',                  [KirController::class, 'destroy'])->name('kir.destroy');
 
-        // PIC
-        Route::get('pic',        [PicController::class, 'index'])->name('pic.index');
-        Route::get('pic/create', [PicController::class, 'create'])->name('pic.create');
-        Route::post('pic',       [PicController::class, 'store'])->name('pic.store');
+        // PIC — Update & Delete nama pengguna barang (dari Riwayat PIC)
+        Route::get('pic/update-nama',           [PicController::class, 'editNama'])->name('pic.edit-nama');
+        Route::put('pic/history/update-nama',   [PicController::class, 'updateNama'])->name('pic.update-nama');
+        Route::delete('pic/history/hapus-nama', [PicController::class, 'destroyNama'])->name('pic.delete-nama');
 
         // Mutasi (uncomment setelah MutasiController dibuat)
         // Route::get('mutasi',             [MutasiController::class, 'index'])->name('mutasi.index');

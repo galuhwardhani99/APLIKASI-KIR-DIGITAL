@@ -11,6 +11,22 @@
     <li class="breadcrumb-item active">{{ $kir->tanggal->format('d/m/Y') }}</li>
 @endsection
 
+@push('styles')
+<style>
+    table td:nth-child(2),
+    table td:nth-child(3) {
+        word-break: break-all;
+        white-space: normal;
+        max-width: 350px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.5;
+        font-size: 13px;
+        padding: 8px 6px;
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- HEADER KIR --}}
@@ -25,30 +41,37 @@
                 <table class="table table-sm table-borderless mb-0" style="width:auto;">
                     <tr>
                         <td class="text-muted py-0 pl-0" width="160">Ruangan</td>
-                        <td class="py-0">
-                            : <strong>{{ $kir->ruangan->nama_ruangan }}</strong>
-                        </td>
+                        <td class="py-0">: <strong>{{ $kir->ruangan->nama_ruangan }}</strong></td>
                     </tr>
                     <tr>
                         <td class="text-muted py-0 pl-0">Kode Lokasi</td>
                         <td class="py-0">: {{ $kir->ruangan->kode_lokasi ?? '-' }}</td>
                     </tr>
+                    @if($kir->pengguna_barang)
                     <tr>
                         <td class="text-muted py-0 pl-0">Pengguna Barang</td>
-                        <td class="py-0">: {{ $kir->pengguna_barang ?? '-' }}</td>
+                        <td class="py-0">: {{ $kir->pengguna_barang }}</td>
                     </tr>
+                    @endif
                     <tr>
                         <td class="text-muted py-0 pl-0">Tanggal KIR</td>
                         <td class="py-0">: <strong>{{ $kir->tanggal->format('d F Y') }}</strong></td>
                     </tr>
+                    @if($kir->keterangan)
                     <tr>
                         <td class="text-muted py-0 pl-0">Keterangan</td>
-                        <td class="py-0">: {{ $kir->keterangan ?? '-' }}</td>
+                        <td class="py-0">: {{ $kir->keterangan }}</td>
                     </tr>
+                    @endif
                 </table>
             </div>
             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                <a href="{{ route('kir.list', $kir->ruangan_id) }}" class="btn btn-secondary btn-sm">
+                <a href="{{ route('laporan.cetak-kir.form', $kir->id) }}"
+                   class="btn btn-primary btn-sm mb-1">
+                    <i class="fas fa-print mr-1"></i> Inventarisasi
+                </a>
+                <a href="{{ route('kir.list', $kir->ruangan_id) }}"
+                   class="btn btn-secondary btn-sm mb-1">
                     <i class="fas fa-arrow-left mr-1"></i> Kembali
                 </a>
             </div>
@@ -56,7 +79,7 @@
     </div>
 </div>
 
-{{-- TABEL ASET DALAM KIR --}}
+{{-- TABEL ASET DALAM KIR — flat, kolom sesuai PDF/Excel Cetak KIR --}}
 <div class="card card-primary card-outline">
     <div class="card-header d-flex align-items-center">
         <h3 class="card-title mr-auto">
@@ -66,23 +89,26 @@
         </h3>
     </div>
 
-    <div class="card-body p-0 table-responsive">
-        <table class="table table-bordered table-hover mb-0">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-sm mb-0">
             <thead class="thead-light">
                 <tr>
-                    <th width="40">No</th>
-                    <th>Kode Barang</th>
-                    <th>Nama Barang</th>
-                    <th>Spesifikasi</th>
-                    <th>Merk/Tipe</th>
-                    <th class="text-center">Jumlah</th>
-                    <th>Satuan</th>
-                    <th>Keterangan</th>
-                    <th class="text-center">Kondisi</th>
+                    <th class="text-center align-middle" style="width:40px">No</th>
+                    <th class="align-middle">NIBAR</th>
+                    <th class="align-middle">Nomor Register</th>
+                    <th class="align-middle">Kode Barang</th>
+                    <th class="align-middle">Nama Barang</th>
+                    <th class="align-middle">Spesifikasi Nama Barang</th>
+                    <th class="align-middle">Merk/Tipe</th>
+                    <th class="text-center align-middle">Tahun Perolehan</th>
+                    <th class="text-center align-middle">Jumlah</th>
+                    <th class="align-middle">Satuan</th>
+                    <th class="align-middle">Ket</th>
+                    <th class="text-center align-middle">Kondisi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($kir->items as $i => $item)
+                @forelse($kir->items as $j => $item)
                 @php
                     $a = $item->aset;
                     $badge = [
@@ -93,11 +119,14 @@
                     ][$a->kondisi] ?? 'secondary';
                 @endphp
                 <tr>
-                    <td>{{ $i + 1 }}</td>
-                    <td><small>{{ $a->kode_barang ?? '-' }}</small></td>
+                    <td class="text-center">{{ $j + 1 }}</td>
+                    <td>{{ $a->nibar ?? '-' }}</td>
+                    <td>{{ $a->nomor_register ?? '-' }}</td>
+                    <td>{{ $a->kode_barang ?? '-' }}</td>
                     <td><strong>{{ $a->nama_barang }}</strong></td>
-                    <td><small>{{ $a->spesifikasi_nama_barang ?? '-' }}</small></td>
+                    <td>{{ $a->spesifikasi_nama_barang ?? '-' }}</td>
                     <td>{{ $a->merk_tipe ?? '-' }}</td>
+                    <td class="text-center">{{ $a->tahun_perolehan ?? '-' }}</td>
                     <td class="text-center">
                         {{ rtrim(rtrim(number_format($a->jumlah, 2, '.', ''), '0'), '.') }}
                     </td>
@@ -111,7 +140,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="text-center text-muted py-3">
+                    <td colspan="12" class="text-center text-muted py-3">
                         Belum ada aset dalam KIR ini.
                     </td>
                 </tr>
@@ -119,6 +148,14 @@
             </tbody>
         </table>
     </div>
-</div>
 
-@endsection
+    {{-- Tanda tangan --}}
+    <div class="card-footer">
+        <p class="text-center text-muted mb-3">
+            Kediri, {{ $kir->tanggal->format('d F Y') }}
+        </p>
+        <div class="row mt-2">
+            <div class="col-md-4 text-center">
+                <p class="mb-0 font-weight-bold">Pengurus Barang</p>
+                <br><br><br>
+                <p class="mb-0

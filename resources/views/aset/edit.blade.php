@@ -32,23 +32,6 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>NIBAR</label>
-                        <input type="text" class="form-control bg-light" value="{{ $aset->nibar }}" disabled>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Nomor Register</label>
-                        <input type="text" class="form-control bg-light" value="{{ $aset->nomor_register }}" disabled>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
                         <label>Jenis Aset <span class="text-danger">*</span></label>
                         <select name="jenis" class="form-control" required>
                             <option value="peralatan_mesin" {{ old('jenis', $aset->jenis) == 'peralatan_mesin' ? 'selected' : '' }}>
@@ -57,6 +40,20 @@
                             <option value="aset_tetap_lainnya" {{ old('jenis', $aset->jenis) == 'aset_tetap_lainnya' ? 'selected' : '' }}>
                                 Aset Tetap Lainnya
                             </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Jenis Barang <small class="text-muted">(klasifikasi BMD)</small></label>
+                        <select name="klasifikasi_barang_id" class="form-control">
+                            <option value="">-- Pilih Jenis Barang --</option>
+                            @foreach($klasifikasiList as $k)
+                                <option value="{{ $k->id }}"
+                                    {{ old('klasifikasi_barang_id', $aset->klasifikasi_barang_id) == $k->id ? 'selected' : '' }}>
+                                    {{ $k->kode }} — {{ $k->nama }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>

@@ -140,35 +140,13 @@
                         </ul>
                     </li>
 
-                   {{-- Data PIC --}}
+                    {{-- Data PIC --}}
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('pic.history') }}"
+                           class="nav-link {{ request()->routeIs('pic.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-user-tie"></i>
-                            <p>
-                                Data PIC
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
+                            <p>Riwayat PIC</p>
                         </a>
-
-                        <ul class="nav nav-treeview">
-
-                            @if(Auth::user()->role === 'admin')
-                            <li class="nav-item">
-                                <a href="{{ route('pic.index') }}" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Update PIC</p>
-                                </a>
-                            </li>
-                            @endif
-
-                            <li class="nav-item">
-                                <a href="{{ route('pic.history') }}" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Riwayat PIC</p>
-                                </a>
-                            </li>
-
-                        </ul>
                     </li>
 
                     {{-- Data Pegawai --}}
@@ -184,8 +162,11 @@
 
                     <li class="nav-header">INVENTARISASI</li>
                     {{-- KIR --}}
-                    <li class="nav-item {{ request()->routeIs('kir.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->routeIs('kir.*') ? 'active' : '' }}">
+                    @php
+                        $isKirActive = request()->routeIs('kir.*', 'laporan.cetak-kir.*', 'laporan.inventarisasi.*');
+                    @endphp
+                    <li class="nav-item {{ $isKirActive ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ $isKirActive ? 'active' : '' }}">
                             <i class="nav-icon fas fa-clipboard-list"></i>
                             <p>
                                 KIR
@@ -213,6 +194,14 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item">
+                                <a href="{{ route('kir.index') }}"
+                                class="nav-link {{ request()->routeIs('laporan.cetak-kir.*', 'laporan.inventarisasi.*') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Cetak KIR</p>
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
 
@@ -237,11 +226,14 @@
                     <li class="nav-header">LAPORAN</li>
 
                     {{-- Laporan KIR --}}
-                    <li class="nav-item {{ request()->routeIs('laporan.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Laporan KIR<i class="fas fa-angle-left right"></i></p>
-                        </a>
+                        @php
+                            $isLaporanActive = request()->routeIs('laporan.ruangan', 'laporan.kondisi', 'laporan.mutasi', 'laporan.pic');
+                        @endphp
+                        <li class="nav-item {{ $isLaporanActive ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ $isLaporanActive ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-file-alt"></i>
+                                <p>Laporan KIR<i class="fas fa-angle-left right"></i></p>
+                            </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="#" class="nav-link {{ request()->routeIs('laporan.ruangan') ? 'active' : '' }}">
