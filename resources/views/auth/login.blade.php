@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login | SIKAR – Sistem Informasi Kartu Inventaris Aset Ruangan</title>
-
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-disarpus.png') }}">
     {{-- Google Font --}}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     {{-- Font Awesome --}}
@@ -19,7 +19,9 @@
     {{-- Logo --}}
     <div class="login-logo">
         <a href="#" style="color: #fff;">
-            <i class="fas fa-qrcode mr-2" style="font-size: 2rem;"></i><br>
+            <img src="{{ asset('images/logo-disarpus.png') }}"
+                alt="Logo SIKAR"
+                style="max-height:70px; width:auto; margin-bottom:8px;"><br>
             <b>SIKAR</b>
         </a>
         <p class="text-white-50 mt-1" style="font-size: 0.85rem;">

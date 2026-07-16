@@ -50,29 +50,19 @@ class KirController extends Controller
     // ── STEP 3: Form tambah KIR ───────────────────────────────────────────
     public function create(Ruangan $ruangan)
     {
-        // Tahun perolehan unik dari aset yang ada
+        // Tahun perolehan unik dari aset
         $tahunList = Aset::whereNotNull('tahun_perolehan')
-                         ->distinct()
-                         ->orderByDesc('tahun_perolehan')
-                         ->pluck('tahun_perolehan');
+                        ->distinct()
+                        ->orderByDesc('tahun_perolehan')
+                        ->pluck('tahun_perolehan');
 
-        // Jenis barang unik dari kolom jenis
-        $jenisList = Aset::whereNotNull('jenis')
-                         ->distinct()
-                         ->orderBy('jenis')
-                         ->pluck('jenis');
-
-        // Klasifikasi level 6 yang punya aset
-        // Label: "1.3.2.02.01.01 — KENDARAAN DINAS BERMOTOR PERORANGAN"
-        $klasifikasiList = KlasifikasiBarang::whereHas('asets')
-                            ->where('level', 6)
-                            ->orderBy('kode')
-                            ->get();
+        // Sama persis dengan dropdown di form Tambah Aset — semua level,
+        // tidak difilter whereHas('asets') atau level tertentu
+        $klasifikasiList = KlasifikasiBarang::orderBy('kode')->get();
 
         return view('kir.create', compact(
             'ruangan',
             'tahunList',
-            'jenisList',
             'klasifikasiList'
         ));
     }
@@ -87,10 +77,6 @@ class KirController extends Controller
 
         if ($request->filled('tahun_perolehan')) {
             $query->where('tahun_perolehan', $request->tahun_perolehan);
-        }
-
-        if ($request->filled('jenis')) {
-            $query->where('jenis', $request->jenis);
         }
 
         // Filter berdasarkan klasifikasi_barang_id (level 6)
@@ -109,7 +95,6 @@ class KirController extends Controller
         $asets = $query->orderBy('nama_barang')->get();
 
         return response()->json($asets->map(function ($a) {
-            // Susun kode lengkap untuk badge chip: level6.kode + kode_barang
             $level6      = $a->klasifikasiBarang;
             $kodeLengkap = $level6
                 ? "{$level6->kode}.{$a->kode_barang}"
@@ -120,7 +105,7 @@ class KirController extends Controller
                 'nibar'                   => $a->nibar,
                 'nomor_register'          => $a->nomor_register,
                 'kode_barang'             => $a->kode_barang,
-                'kode_lengkap'            => $kodeLengkap, // untuk badge chip
+                'kode_lengkap'            => $kodeLengkap,
                 'nama_barang'             => $a->nama_barang,
                 'spesifikasi_nama_barang' => $a->spesifikasi_nama_barang,
                 'merk_tipe'               => $a->merk_tipe,
@@ -128,7 +113,6 @@ class KirController extends Controller
                 'jumlah'                  => $a->jumlah,
                 'satuan'                  => $a->satuan,
                 'kondisi'                 => $a->kondisi,
-                'jenis'                   => $a->jenis,
                 'ruangan'                 => $a->ruangan?->nama_ruangan ?? '-',
             ];
         }));
@@ -192,4 +176,4 @@ class KirController extends Controller
             ->route('kir.list', $ruanganId)
             ->with('success', 'KIR berhasil dihapus.');
     }
-}
+}   

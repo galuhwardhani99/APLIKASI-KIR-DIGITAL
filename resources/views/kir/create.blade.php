@@ -56,7 +56,7 @@
         <div class="row">
 
             {{-- 1. Tahun Perolehan --}}
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label class="font-weight-bold">Tahun Perolehan</label>
                     <select id="filterTahun" class="form-control">
@@ -68,40 +68,20 @@
                 </div>
             </div>
 
-            {{-- 2. Jenis Barang --}}
-            <div class="col-md-4">
+            {{-- 2. Jenis Aset (klasifikasi BMD) – sama persis dengan di form aset --}}
+            <div class="col-md-6">
                 <div class="form-group">
-                    <label class="font-weight-bold">Jenis Barang</label>
-                    <select id="filterJenis" class="form-control">
-                        <option value="">-- Silahkan Pilih --</option>
-                        @foreach($jenisList as $j)
-                            <option value="{{ $j }}">
-                                @if($j === 'peralatan_mesin')
-                                    Peralatan &amp; Mesin
-                                @else
-                                    Aset Tetap Lainnya
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            {{-- 3. Kode Barang (klasifikasi level 6) --}}
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label class="font-weight-bold">Kode Barang</label>
+                    <label class="font-weight-bold">
+                        Jenis Aset <small class="text-muted">(klasifikasi BMD)</small>
+                    </label>
                     <select id="filterKlasifikasi" class="form-control">
-                        <option value="">-- Silahkan Pilih --</option>
+                        <option value="">-- Pilih Jenis Barang --</option>
                         @foreach($klasifikasiList as $k)
                             <option value="{{ $k->id }}">
                                 {{ $k->kode }} — {{ $k->nama }}
                             </option>
                         @endforeach
                     </select>
-                    <small class="text-muted">
-                        Contoh: <code>1.3.2.02.01.01 — KENDARAAN DINAS BERMOTOR PERORANGAN</code>
-                    </small>
                 </div>
             </div>
 
@@ -156,9 +136,9 @@
                         <th class="align-middle">Nama Barang</th>
                         <th class="align-middle">NIBAR</th>
                         <th class="align-middle">No. Register</th>
-                        <th class="align-middle">Spesifikasi</th>
+                        <th class="align-middle">Spesifikasi Nama Barang</th>
                         <th class="align-middle">Merk/Tipe</th>
-                        <th class="text-center align-middle">Tahun</th>
+                        <th class="text-center align-middle">Tahun Perolehan</th>
                         <th class="text-center align-middle">Jumlah</th>
                         <th class="align-middle">Satuan</th>
                         <th class="text-center align-middle">Kondisi</th>
@@ -212,22 +192,19 @@ document.getElementById('btnFilter').addEventListener('click', loadAset);
 
 // ── Tombol Reset ─────────────────────────────────────────────────────────
 document.getElementById('btnReset').addEventListener('click', function () {
-    document.getElementById('filterTahun').value        = '';
-    document.getElementById('filterJenis').value        = '';
-    document.getElementById('filterKlasifikasi').value  = '';
-    document.getElementById('cardTabel').style.display  = 'none';
+    document.getElementById('filterTahun').value       = '';
+    document.getElementById('filterKlasifikasi').value = '';
+    document.getElementById('cardTabel').style.display = 'none';
     document.querySelectorAll('#tbodyRincian tr.row-aset').forEach(r => r.remove());
 });
 
 // ── Load aset via AJAX ───────────────────────────────────────────────────
 function loadAset() {
     const tahun       = document.getElementById('filterTahun').value;
-    const jenis       = document.getElementById('filterJenis').value;
     const klasifikasi = document.getElementById('filterKlasifikasi').value;
 
     const params = new URLSearchParams();
     if (tahun)       params.append('tahun_perolehan',       tahun);
-    if (jenis)       params.append('jenis',                 jenis);
     if (klasifikasi) params.append('klasifikasi_barang_id', klasifikasi);
 
     document.getElementById('cardTabel').style.display  = '';
@@ -248,18 +225,24 @@ function loadAset() {
         }
 
         const tbody = document.getElementById('tbodyRincian');
+
         data.forEach((aset, idx) => {
             const badge       = kondisiBadge[aset.kondisi] || 'secondary';
-            const kondisiText = aset.kondisi ? aset.kondisi.replace(/_/g, ' ') : '-';
+            const kondisiText = aset.kondisi
+                ? aset.kondisi.replace(/_/g, ' ')
+                : '-';
 
-            // Kode barang sebagai badge chip
+            // Kode barang sebagai badge chip persis seperti di daftar aset
             const kodeSegments = aset.kode_lengkap
                 ? aset.kode_lengkap.split('.').filter(s => s !== '')
                 : [];
             const kodeHtml = kodeSegments.length
                 ? kodeSegments.map(s =>
-                    `<span class="badge badge-secondary" style="font-size:0.75rem;font-weight:600;">${s}</span>`
-                  ).join(' ')
+                    `<span class="badge badge-secondary"
+                           style="font-size:0.75rem; font-weight:600; margin:1px;">
+                        ${s}
+                    </span>`
+                  ).join('')
                 : '-';
 
             const row = document.createElement('tr');
@@ -275,8 +258,12 @@ function loadAset() {
                         <label class="custom-control-label" for="cb_${aset.id}"></label>
                     </div>
                 </td>
-                <td class="text-center">${idx + 1}</td>
-                <td><div style="display:flex;flex-wrap:wrap;gap:2px;">${kodeHtml}</div></td>
+                <td class="text-center align-middle">${idx + 1}</td>
+                <td>
+                    <div style="display:flex; flex-wrap:wrap; gap:2px;">
+                        ${kodeHtml}
+                    </div>
+                </td>
                 <td><strong>${aset.nama_barang}</strong></td>
                 <td>${aset.nibar ?? '-'}</td>
                 <td><small>${aset.nomor_register ?? '-'}</small></td>
@@ -285,8 +272,12 @@ function loadAset() {
                 <td class="text-center">${aset.tahun_perolehan ?? '-'}</td>
                 <td class="text-center">${aset.jumlah}</td>
                 <td>${aset.satuan ?? '-'}</td>
-                <td class="text-center"><span class="badge badge-${badge}">${kondisiText}</span></td>
-                <td><span class="badge badge-light">${aset.ruangan}</span></td>
+                <td class="text-center">
+                    <span class="badge badge-${badge}">${kondisiText}</span>
+                </td>
+                <td>
+                    <span class="badge badge-light">${aset.ruangan}</span>
+                </td>
             `;
             tbody.appendChild(row);
         });
@@ -321,8 +312,10 @@ function updateCount() {
         info.style.display = 'none';
     }
 
-    document.getElementById('checkAll').checked       = checked > 0 && checked === total;
-    document.getElementById('checkAll').indeterminate = checked > 0 && checked < total;
+    document.getElementById('checkAll').checked =
+        checked > 0 && checked === total;
+    document.getElementById('checkAll').indeterminate =
+        checked > 0 && checked < total;
 }
 
 // ── Check All ────────────────────────────────────────────────────────────
@@ -333,7 +326,7 @@ document.getElementById('checkAll').addEventListener('change', function () {
     updateCount();
 });
 
-// ── Highlight baris yang diceklis ─────────────────────────────────────
+// ── Highlight baris yang diceklis ────────────────────────────────────────
 document.getElementById('tbodyRincian').addEventListener('change', function (e) {
     if (e.target.classList.contains('cb-aset')) {
         e.target.closest('tr').classList.toggle('table-success', e.target.checked);
