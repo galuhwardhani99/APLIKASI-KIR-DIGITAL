@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') | SIKAR</title>
-
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-disarpus.png') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
@@ -63,10 +63,12 @@
     {{-- SIDEBAR --}}
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-        <a href="{{ route('dashboard') }}" class="brand-link text-center">
-            <i class="fas fa-qrcode brand-image elevation-3"
-               style="font-size:1.8rem; opacity:.8; line-height:2rem; margin:0 8px;"></i>
-            <span class="brand-text font-weight-bold">SIKAR</span>
+        <a href="{{ route('dashboard') }}" class="brand-link text-center"
+            style="background-color:#ffffff; border-bottom:none; box-shadow:none; padding-top:2px; padding-bottom:2px; display:flex; align-items:center; justify-content:center;">
+            <img src="{{ asset('images/logo-disarpus.png') }}"
+                alt="Logo SIKAR"
+                style="opacity:1; width:110px; max-width:45%; height:auto; margin-right:8px; box-shadow:none; filter:none;">
+            <span class="brand-text font-weight-bold" style="color:#000000;">SIKAR</span>
         </a>
 
         <div class="sidebar">
