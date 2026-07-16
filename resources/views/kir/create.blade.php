@@ -46,21 +46,19 @@
 
 {{-- FILTER BARANG --}}
 <div class="card card-outline card-primary mb-3">
-    <div class="card-header">
-        <h3 class="card-title">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h3 class="card-title mb-0">
             <i class="fas fa-filter mr-1"></i> Filter Informasi Barang
         </h3>
-        <div class="card-tools">
-            <small class="text-muted">Pilih filter lalu klik Tampilkan</small>
-        </div>
+        <small class="text-muted">Pilih filter lalu klik Tampilkan</small>
     </div>
     <div class="card-body pb-2">
         <div class="row">
 
-            {{-- Tahun Perolehan --}}
+            {{-- 1. Tahun Perolehan --}}
             <div class="col-md-4">
                 <div class="form-group">
-                    <label>Tahun Perolehan</label>
+                    <label class="font-weight-bold">Tahun Perolehan</label>
                     <select id="filterTahun" class="form-control">
                         <option value="">-- Silahkan Pilih --</option>
                         @foreach($tahunList as $t)
@@ -70,38 +68,46 @@
                 </div>
             </div>
 
-            {{-- Jenis Barang --}}
+            {{-- 2. Jenis Barang --}}
             <div class="col-md-4">
                 <div class="form-group">
-                    <label>Jenis Barang</label>
+                    <label class="font-weight-bold">Jenis Barang</label>
                     <select id="filterJenis" class="form-control">
                         <option value="">-- Silahkan Pilih --</option>
                         @foreach($jenisList as $j)
                             <option value="{{ $j }}">
-                                {{ $j === 'peralatan_mesin' ? 'Peralatan & Mesin' : 'Aset Tetap Lainnya' }}
+                                @if($j === 'peralatan_mesin')
+                                    Peralatan &amp; Mesin
+                                @else
+                                    Aset Tetap Lainnya
+                                @endif
                             </option>
                         @endforeach
                     </select>
                 </div>
             </div>
 
-            {{-- Kode Barang (format: kode - nama) --}}
+            {{-- 3. Kode Barang (klasifikasi level 6) --}}
             <div class="col-md-4">
                 <div class="form-group">
-                    <label>Kode Barang</label>
-                    <select id="filterKode" class="form-control">
+                    <label class="font-weight-bold">Kode Barang</label>
+                    <select id="filterKlasifikasi" class="form-control">
                         <option value="">-- Silahkan Pilih --</option>
-                        @foreach($kodeList as $k)
-                            <option value="{{ $k->kode_barang }}">
-                                {{ $k->kode_barang }} - {{ $k->nama_barang }}
+                        @foreach($klasifikasiList as $k)
+                            <option value="{{ $k->id }}">
+                                {{ $k->kode }} — {{ $k->nama }}
                             </option>
                         @endforeach
                     </select>
+                    <small class="text-muted">
+                        Contoh: <code>1.3.2.02.01.01 — KENDARAAN DINAS BERMOTOR PERORANGAN</code>
+                    </small>
                 </div>
             </div>
 
         </div>
-        <div class="row">
+
+        <div class="row mt-1">
             <div class="col-12 d-flex justify-content-between align-items-center">
                 <small class="text-muted">
                     <i class="fas fa-info-circle mr-1"></i>
@@ -144,30 +150,29 @@
             <table class="table table-bordered table-hover mb-0" id="tableRincian">
                 <thead class="thead-light">
                     <tr>
-                        <th width="40" class="text-center">✓</th>
-                        <th>No</th>
-                        <th>NIBAR</th>
-                        <th>No. Register</th>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Jenis</th>
-                        <th>Spesifikasi</th>
-                        <th>Merk/Tipe</th>
-                        <th>Tahun</th>
-                        <th>Jumlah</th>
-                        <th>Satuan</th>
-                        <th>Ruangan Saat Ini</th>
-                        <th>Kondisi</th>
+                        <th width="40" class="text-center align-middle">✓</th>
+                        <th class="text-center align-middle" style="width:40px">No</th>
+                        <th class="align-middle">Kode Barang</th>
+                        <th class="align-middle">Nama Barang</th>
+                        <th class="align-middle">NIBAR</th>
+                        <th class="align-middle">No. Register</th>
+                        <th class="align-middle">Spesifikasi</th>
+                        <th class="align-middle">Merk/Tipe</th>
+                        <th class="text-center align-middle">Tahun</th>
+                        <th class="text-center align-middle">Jumlah</th>
+                        <th class="align-middle">Satuan</th>
+                        <th class="text-center align-middle">Kondisi</th>
+                        <th class="align-middle">Ruangan Saat Ini</th>
                     </tr>
                 </thead>
                 <tbody id="tbodyRincian">
                     <tr id="rowLoading" style="display:none;">
-                        <td colspan="14" class="text-center py-4">
+                        <td colspan="13" class="text-center py-4">
                             <i class="fas fa-spinner fa-spin mr-1"></i> Memuat data...
                         </td>
                     </tr>
                     <tr id="rowEmpty" style="display:none;">
-                        <td colspan="14" class="text-center text-muted py-4">
+                        <td colspan="13" class="text-center text-muted py-4">
                             Tidak ada aset yang cocok dengan filter.
                         </td>
                     </tr>
@@ -202,33 +207,28 @@ const kondisiBadge = {
     hilang:       'dark',
 };
 
-const jenisLabel = {
-    peralatan_mesin:     'Peralatan & Mesin',
-    aset_tetap_lainnya:  'Aset Tetap Lainnya',
-};
-
-// Tombol Tampilkan
+// ── Tombol Tampilkan ─────────────────────────────────────────────────────
 document.getElementById('btnFilter').addEventListener('click', loadAset);
 
-// Tombol Reset
+// ── Tombol Reset ─────────────────────────────────────────────────────────
 document.getElementById('btnReset').addEventListener('click', function () {
-    document.getElementById('filterTahun').value = '';
-    document.getElementById('filterJenis').value = '';
-    document.getElementById('filterKode').value  = '';
-    document.getElementById('cardTabel').style.display = 'none';
+    document.getElementById('filterTahun').value        = '';
+    document.getElementById('filterJenis').value        = '';
+    document.getElementById('filterKlasifikasi').value  = '';
+    document.getElementById('cardTabel').style.display  = 'none';
     document.querySelectorAll('#tbodyRincian tr.row-aset').forEach(r => r.remove());
 });
 
-// Load aset via AJAX
+// ── Load aset via AJAX ───────────────────────────────────────────────────
 function loadAset() {
-    const tahun = document.getElementById('filterTahun').value;
-    const jenis = document.getElementById('filterJenis').value;
-    const kode  = document.getElementById('filterKode').value;
+    const tahun       = document.getElementById('filterTahun').value;
+    const jenis       = document.getElementById('filterJenis').value;
+    const klasifikasi = document.getElementById('filterKlasifikasi').value;
 
     const params = new URLSearchParams();
-    if (tahun) params.append('tahun_perolehan', tahun);
-    if (jenis) params.append('jenis', jenis);           // ← ganti dari nama_barang
-    if (kode)  params.append('kode_barang', kode);
+    if (tahun)       params.append('tahun_perolehan',       tahun);
+    if (jenis)       params.append('jenis',                 jenis);
+    if (klasifikasi) params.append('klasifikasi_barang_id', klasifikasi);
 
     document.getElementById('cardTabel').style.display  = '';
     document.getElementById('rowLoading').style.display = '';
@@ -251,7 +251,16 @@ function loadAset() {
         data.forEach((aset, idx) => {
             const badge       = kondisiBadge[aset.kondisi] || 'secondary';
             const kondisiText = aset.kondisi ? aset.kondisi.replace(/_/g, ' ') : '-';
-            const jenisText   = jenisLabel[aset.jenis] || (aset.jenis ?? '-');
+
+            // Kode barang sebagai badge chip
+            const kodeSegments = aset.kode_lengkap
+                ? aset.kode_lengkap.split('.').filter(s => s !== '')
+                : [];
+            const kodeHtml = kodeSegments.length
+                ? kodeSegments.map(s =>
+                    `<span class="badge badge-secondary" style="font-size:0.75rem;font-weight:600;">${s}</span>`
+                  ).join(' ')
+                : '-';
 
             const row = document.createElement('tr');
             row.className = 'row-aset';
@@ -266,19 +275,18 @@ function loadAset() {
                         <label class="custom-control-label" for="cb_${aset.id}"></label>
                     </div>
                 </td>
-                <td>${idx + 1}</td>
-                <td>${aset.nibar ?? '-'}</td>
-                <td>${aset.nomor_register ?? '-'}</td>
-                <td><small>${aset.kode_barang ?? '-'}</small></td>
+                <td class="text-center">${idx + 1}</td>
+                <td><div style="display:flex;flex-wrap:wrap;gap:2px;">${kodeHtml}</div></td>
                 <td><strong>${aset.nama_barang}</strong></td>
-                <td><small>${jenisText}</small></td>
+                <td>${aset.nibar ?? '-'}</td>
+                <td><small>${aset.nomor_register ?? '-'}</small></td>
                 <td><small>${aset.spesifikasi_nama_barang ?? '-'}</small></td>
                 <td>${aset.merk_tipe ?? '-'}</td>
-                <td>${aset.tahun_perolehan ?? '-'}</td>
-                <td>${aset.jumlah}</td>
+                <td class="text-center">${aset.tahun_perolehan ?? '-'}</td>
+                <td class="text-center">${aset.jumlah}</td>
                 <td>${aset.satuan ?? '-'}</td>
+                <td class="text-center"><span class="badge badge-${badge}">${kondisiText}</span></td>
                 <td><span class="badge badge-light">${aset.ruangan}</span></td>
-                <td><span class="badge badge-${badge}">${kondisiText}</span></td>
             `;
             tbody.appendChild(row);
         });
@@ -291,7 +299,7 @@ function loadAset() {
     });
 }
 
-// Checkbox logic
+// ── Checkbox logic ───────────────────────────────────────────────────────
 function bindCheckboxes() {
     document.querySelectorAll('.cb-aset').forEach(cb => {
         cb.addEventListener('change', updateCount);
@@ -303,23 +311,21 @@ function updateCount() {
     const total   = document.querySelectorAll('.cb-aset').length;
 
     document.getElementById('jumlahSimpan').textContent = checked;
-    document.getElementById('btnSimpan').disabled = checked === 0;
+    document.getElementById('btnSimpan').disabled       = checked === 0;
 
     const info = document.getElementById('infoTerpilih');
     if (checked > 0) {
-        info.textContent = checked + ' dari ' + total + ' dipilih';
+        info.textContent   = checked + ' dari ' + total + ' dipilih';
         info.style.display = '';
     } else {
         info.style.display = 'none';
     }
 
-    document.getElementById('checkAll').checked =
-        checked > 0 && checked === total;
-    document.getElementById('checkAll').indeterminate =
-        checked > 0 && checked < total;
+    document.getElementById('checkAll').checked       = checked > 0 && checked === total;
+    document.getElementById('checkAll').indeterminate = checked > 0 && checked < total;
 }
 
-// Check All
+// ── Check All ────────────────────────────────────────────────────────────
 document.getElementById('checkAll').addEventListener('change', function () {
     document.querySelectorAll('.cb-aset').forEach(cb => {
         cb.checked = this.checked;
@@ -327,11 +333,10 @@ document.getElementById('checkAll').addEventListener('change', function () {
     updateCount();
 });
 
-// Highlight baris saat diceklis
+// ── Highlight baris yang diceklis ─────────────────────────────────────
 document.getElementById('tbodyRincian').addEventListener('change', function (e) {
     if (e.target.classList.contains('cb-aset')) {
-        const row = e.target.closest('tr');
-        row.classList.toggle('table-success', e.target.checked);
+        e.target.closest('tr').classList.toggle('table-success', e.target.checked);
     }
 });
 </script>

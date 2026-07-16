@@ -6,18 +6,21 @@ use App\Models\Kir;
 use App\Models\KirItem;
 use App\Models\Aset;
 use App\Models\Ruangan;
+use App\Models\KlasifikasiBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class KirController extends Controller
 {
+    // ── STEP 1: Form pilih ruangan ────────────────────────────────────────
     public function index()
     {
         $ruangans = Ruangan::orderBy('nama_ruangan')->get();
         return view('kir.index', compact('ruangans'));
     }
 
+    // ── STEP 1 POST ───────────────────────────────────────────────────────
     public function pilihRuangan(Request $request)
     {
         $request->validate([
@@ -30,6 +33,7 @@ class KirController extends Controller
         return redirect()->route('kir.list', $request->ruangan_id);
     }
 
+    // ── STEP 2: Daftar KIR per ruangan ───────────────────────────────────
     public function list(Ruangan $ruangan)
     {
         $kirs = Kir::where('ruangan_id', $ruangan->id)
@@ -40,48 +44,60 @@ class KirController extends Controller
 
         $kirs->load(['items.aset.klasifikasiBarang.parent.parent.parent']);
 
-        // Kelompokkan & urutkan aset di tiap KIR sesuai pola Daftar Aset
-        $kirs->each(function ($kir) {
-            $kir->setRelation('items', $this->enrichAndSortItems($kir->items));
-        });
-
         return view('kir.list', compact('ruangan', 'kirs'));
     }
 
+    // ── STEP 3: Form tambah KIR ───────────────────────────────────────────
     public function create(Ruangan $ruangan)
     {
+        // Tahun perolehan unik dari aset yang ada
         $tahunList = Aset::whereNotNull('tahun_perolehan')
-                        ->distinct()
-                        ->orderByDesc('tahun_perolehan')
-                        ->pluck('tahun_perolehan');
+                         ->distinct()
+                         ->orderByDesc('tahun_perolehan')
+                         ->pluck('tahun_perolehan');
 
+        // Jenis barang unik dari kolom jenis
         $jenisList = Aset::whereNotNull('jenis')
-                        ->distinct()
-                        ->orderBy('jenis')
-                        ->pluck('jenis');
+                         ->distinct()
+                         ->orderBy('jenis')
+                         ->pluck('jenis');
 
-        $kodeList = Aset::whereNotNull('kode_barang')
-                        ->select('kode_barang', 'nama_barang')
-                        ->distinct()
-                        ->orderBy('kode_barang')
-                        ->get();
+        // Klasifikasi level 6 yang punya aset
+        // Label: "1.3.2.02.01.01 — KENDARAAN DINAS BERMOTOR PERORANGAN"
+        $klasifikasiList = KlasifikasiBarang::whereHas('asets')
+                            ->where('level', 6)
+                            ->orderBy('kode')
+                            ->get();
 
-        return view('kir.create', compact('ruangan', 'tahunList', 'jenisList', 'kodeList'));
+        return view('kir.create', compact(
+            'ruangan',
+            'tahunList',
+            'jenisList',
+            'klasifikasiList'
+        ));
     }
 
+    // ── AJAX: Filter aset ─────────────────────────────────────────────────
     public function filterAset(Request $request)
     {
-        $query = Aset::with('ruangan');
+        $query = Aset::with([
+            'ruangan',
+            'klasifikasiBarang.parent.parent.parent',
+        ]);
 
         if ($request->filled('tahun_perolehan')) {
             $query->where('tahun_perolehan', $request->tahun_perolehan);
         }
+
         if ($request->filled('jenis')) {
             $query->where('jenis', $request->jenis);
         }
-        if ($request->filled('kode_barang')) {
-            $query->where('kode_barang', $request->kode_barang);
+
+        // Filter berdasarkan klasifikasi_barang_id (level 6)
+        if ($request->filled('klasifikasi_barang_id')) {
+            $query->where('klasifikasi_barang_id', $request->klasifikasi_barang_id);
         }
+
         if ($request->filled('kir_id')) {
             $query->whereNotIn('id', function ($q) use ($request) {
                 $q->select('aset_id')
@@ -92,23 +108,33 @@ class KirController extends Controller
 
         $asets = $query->orderBy('nama_barang')->get();
 
-        return response()->json($asets->map(fn($a) => [
-            'id'                      => $a->id,
-            'nibar'                   => $a->nibar,
-            'nomor_register'          => $a->nomor_register,
-            'kode_barang'             => $a->kode_barang,
-            'nama_barang'             => $a->nama_barang,
-            'spesifikasi_nama_barang' => $a->spesifikasi_nama_barang,
-            'merk_tipe'               => $a->merk_tipe,
-            'tahun_perolehan'         => $a->tahun_perolehan,
-            'jumlah'                  => $a->jumlah,
-            'satuan'                  => $a->satuan,
-            'kondisi'                 => $a->kondisi,
-            'jenis'                   => $a->jenis,
-            'ruangan'                 => $a->ruangan?->nama_ruangan ?? '-',
-        ]));
+        return response()->json($asets->map(function ($a) {
+            // Susun kode lengkap untuk badge chip: level6.kode + kode_barang
+            $level6      = $a->klasifikasiBarang;
+            $kodeLengkap = $level6
+                ? "{$level6->kode}.{$a->kode_barang}"
+                : $a->kode_barang;
+
+            return [
+                'id'                      => $a->id,
+                'nibar'                   => $a->nibar,
+                'nomor_register'          => $a->nomor_register,
+                'kode_barang'             => $a->kode_barang,
+                'kode_lengkap'            => $kodeLengkap, // untuk badge chip
+                'nama_barang'             => $a->nama_barang,
+                'spesifikasi_nama_barang' => $a->spesifikasi_nama_barang,
+                'merk_tipe'               => $a->merk_tipe,
+                'tahun_perolehan'         => $a->tahun_perolehan,
+                'jumlah'                  => $a->jumlah,
+                'satuan'                  => $a->satuan,
+                'kondisi'                 => $a->kondisi,
+                'jenis'                   => $a->jenis,
+                'ruangan'                 => $a->ruangan?->nama_ruangan ?? '-',
+            ];
+        }));
     }
 
+    // ── STEP 3 POST: Simpan KIR ───────────────────────────────────────────
     public function store(Request $request, Ruangan $ruangan)
     {
         $request->validate([
@@ -146,6 +172,7 @@ class KirController extends Controller
             ->with('success', 'KIR berhasil disimpan. ' . $jumlahAset . ' aset telah ditambahkan ke KIR.');
     }
 
+    // ── Detail KIR ────────────────────────────────────────────────────────
     public function show(Kir $kir)
     {
         $kir->load([
@@ -153,12 +180,10 @@ class KirController extends Controller
             'ruangan.penanggungJawab',
             'items.aset.klasifikasiBarang.parent.parent.parent',
         ]);
-
-        $kir->setRelation('items', $this->enrichAndSortItems($kir->items));
-
         return view('kir.show', compact('kir'));
     }
 
+    // ── Hapus KIR ─────────────────────────────────────────────────────────
     public function destroy(Kir $kir)
     {
         $ruanganId = $kir->ruangan_id;
@@ -166,44 +191,5 @@ class KirController extends Controller
         return redirect()
             ->route('kir.list', $ruanganId)
             ->with('success', 'KIR berhasil dihapus.');
-    }
-
-    /**
-     * Tambahkan label level3-6 + kode_barang_lengkap ke tiap $item->aset,
-     * lalu urutkan persis seperti pola Daftar Aset (biar RowGroup nyambung).
-     */
-    private function enrichAndSortItems($items)
-    {
-        $items = $items->map(function ($item) {
-            $aset   = $item->aset;
-            $level6 = $aset->klasifikasiBarang;
-            $level5 = $level6?->parent;
-            $level4 = $level5?->parent;
-            $level3 = $level4?->parent;
-
-            $aset->level3_label = $level3 ? "{$level3->kode} — {$level3->nama}" : 'BELUM DIKATEGORIKAN';
-            $aset->level4_label = $level4 ? "{$level4->kode} — {$level4->nama}" : 'BELUM DIKATEGORIKAN';
-            $aset->level5_label = $level5 ? "{$level5->kode} — {$level5->nama}" : 'BELUM DIKATEGORIKAN';
-            $aset->level6_label = $level6 ? "{$level6->kode} — {$level6->nama}" : 'BELUM DIKATEGORIKAN';
-
-            $aset->kode_barang_lengkap = $level6
-                ? "{$level6->kode}.{$aset->kode_barang}"
-                : $aset->kode_barang;
-
-            return $item;
-        });
-
-        return $items->sortBy(function ($item) {
-            $aset       = $item->aset;
-            $kode       = optional($aset->klasifikasiBarang)->kode ?? '';
-            $paddedKode = collect(explode('.', $kode))
-                ->filter(fn ($s) => $s !== '')
-                ->map(fn ($s) => str_pad($s, 2, '0', STR_PAD_LEFT))
-                ->implode('.');
-
-            $itemKode = str_pad($aset->kode_barang ?? '000', 3, '0', STR_PAD_LEFT);
-
-            return $paddedKode . '.' . $itemKode;
-        })->values();
     }
 }
