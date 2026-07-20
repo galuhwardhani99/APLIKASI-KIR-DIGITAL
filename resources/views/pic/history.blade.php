@@ -44,7 +44,7 @@
                     <th>Nama Pengguna Barang</th>
                     <th>Ruangan</th>
                     <th width="140" class="text-center">Jumlah Aset</th>
-                    <th width="180" class="text-center">Aksi</th>
+                    <th width="60" class="text-center"></th>
                 </tr>
             </thead>
 
@@ -60,21 +60,7 @@
                         <span class="badge badge-primary">{{ $row['jumlah_aset'] }}</span>
                     </td>
                     <td class="text-center">
-                        <i class="fas fa-chevron-down icon-toggle row-pic mr-2" data-target="#detail-{{ $index }}"></i>
-
-                        <a href="{{ route('pic.edit-nama', ['nama' => $row['nama']]) }}"
-                            class="btn btn-warning btn-sm"
-                            title="Update Nama">
-                                <i class="fas fa-edit"></i>
-                            </a>
-
-                        <button type="button"
-                                class="btn btn-danger btn-sm"
-                                data-toggle="modal"
-                                data-target="#modalDelete{{ $index }}"
-                                title="Hapus">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <i class="fas fa-chevron-down icon-toggle row-pic" data-target="#detail-{{ $index }}"></i>
                     </td>
                 </tr>
 
@@ -159,102 +145,11 @@
 
 </div>
 
-{{-- ── MODAL UPDATE & DELETE PER ORANG ──────────────────────────────── --}}
-@foreach($riwayatPic as $index => $row)
-
-{{-- Modal Update Nama --}}
-<div class="modal fade" id="modalUpdate{{ $index }}" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-
-            <form method="POST" action="{{ route('pic.update-nama') }}">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="nama_lama" value="{{ $row['nama'] }}">
-
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit mr-1"></i> Update Nama Pengguna Barang
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Nama Saat Ini</label>
-                        <input type="text" class="form-control bg-light" value="{{ $row['nama'] }}" disabled>
-                    </div>
-                    <div class="form-group mb-0">
-                        <label>Nama Baru <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_baru" class="form-control"
-                               value="{{ $row['nama'] }}" required>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-</div>
-
-{{-- Modal Delete --}}
-<div class="modal fade" id="modalDelete{{ $index }}" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-
-            <form method="POST" action="{{ route('pic.delete-nama') }}">
-                @csrf
-                @method('DELETE')
-                <input type="hidden" name="nama" value="{{ $row['nama'] }}">
-
-                <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white">
-                        <i class="fas fa-trash mr-1"></i> Hapus dari Riwayat PIC
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-                    <p>
-                        Yakin mau hapus <strong>{{ $row['nama'] }}</strong> dari Riwayat PIC?
-                    </p>
-                    <p class="text-muted mb-0">
-                        <small>
-                            Dokumen KIR & data aset <strong>tidak</strong> akan terhapus —
-                            hanya label pengguna barangnya saja yang dikosongkan,
-                            sehingga nama ini tidak akan muncul lagi di halaman ini.
-                        </small>
-                    </p>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-</div>
-
-@endforeach
-
 @endsection
 
 @push('scripts')
 <script>
 $(function () {
-
     $(document).on('click', '.row-pic', function () {
         const target = $(this).data('target');
         const $detail = $(target);
@@ -263,7 +158,6 @@ $(function () {
         $detail.toggle();
         $icon.toggleClass('open');
     });
-
 });
 </script>
 @endpush

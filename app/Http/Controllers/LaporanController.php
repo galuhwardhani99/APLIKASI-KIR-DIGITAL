@@ -11,12 +11,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
 {
-    // ── Form inventarisasi (setting parameter + tanda tangan) ────────────
+    // ── Form inventarisasi ────────────────────────────────────────────────
     public function cetakKirForm(Kir $kir)
     {
         $kir->load([
-            'ruangan.pengurusBarang',
-            'ruangan.penanggungJawab',
+            'ruangan',
             'items.aset',
         ]);
 
@@ -24,19 +23,16 @@ class LaporanController extends Controller
             ->orderBy('nama')
             ->get();
 
-        // Cari ID pegawai berdasarkan nama pengguna_barang yang tersimpan
         $selectedPenggunaId = null;
-        if (!empty($kir->pengguna_barang)) {
-            $selectedPenggunaId = Pegawai::where(
-                'nama',
-                $kir->pengguna_barang
-            )->value('id');
+        if ($kir->pengguna_barang) {
+            $pg = Pegawai::where('nama', $kir->pengguna_barang)->first();
+            $selectedPenggunaId = $pg?->id;
         }
 
         return view('laporan.cetak-kir', compact('kir', 'pegawaiList', 'selectedPenggunaId'));
     }
 
-    // ── Simpan perubahan data inventarisasi ke tabel kirs ────────────────
+    // ── Simpan inventarisasi → redirect ke Daftar KIR ─────────────────────
     public function simpanInventarisasi(Request $request, Kir $kir)
     {
         $request->validate([
@@ -56,18 +52,20 @@ class LaporanController extends Controller
         ]);
 
         $kir->update([
-            'pengguna_barang'     => $request->pengguna_barang,       // nama dari hidden field
+            'pengguna_barang'     => $request->pengguna_barang,
             'pengurus_barang_id'  => $request->penandatangan_kiri_id,
             'penanggung_jawab_id' => $request->penandatangan_kanan_id,
-            'keterangan'          => $request->periode,               // simpan periode di keterangan
+            'keterangan'          => $request->periode,
         ]);
 
+        // Redirect ke DAFTAR KIR -> tombol Cetak PDF/Excel muncul di
+        // kolom Aksi tiap baris (tidak dipaksa cetak langsung saat itu juga).
         return redirect()
-            ->route('laporan.cetak-kir.form', $kir->id)
-            ->with('success', 'Data inventarisasi berhasil disimpan.');
+            ->route('kir.list', $kir->ruangan_id)
+            ->with('success', 'Data inventarisasi berhasil disimpan. Silahkan cetak PDF atau Excel dari kolom Aksi.');
     }
 
-    // ── Validasi form cetak (shared) ─────────────────────────────────────
+    // ── Validasi cetak ────────────────────────────────────────────────────
     private function validateCetak(Request $request): array
     {
         return $request->validate([
@@ -77,16 +75,10 @@ class LaporanController extends Controller
             'tanggal_ttd'             => 'required|date',
             'penandatangan_kiri_id'   => 'required|exists:pegawais,id',
             'penandatangan_kanan_id'  => 'required|exists:pegawais,id',
-        ], [
-            'periode.required'                => 'Periode wajib diisi.',
-            'pengguna_barang.required'        => 'Pengguna Barang wajib diisi.',
-            'tanggal_ttd.required'            => 'Tanggal TTD wajib diisi.',
-            'penandatangan_kiri_id.required'  => 'Penandatangan kiri wajib dipilih.',
-            'penandatangan_kanan_id.required' => 'Penandatangan kanan wajib dipilih.',
         ]);
     }
 
-    // ── Generate & download PDF ──────────────────────────────────────────
+    // ── Cetak PDF ─────────────────────────────────────────────────────────
     public function cetakKirPdf(Request $request, Kir $kir)
     {
         $data = $this->validateCetak($request);
@@ -109,7 +101,7 @@ class LaporanController extends Controller
         return $pdf->download($namaFile);
     }
 
-    // ── Generate & download Excel ─────────────────────────────────────────
+    // ── Cetak Excel ───────────────────────────────────────────────────────
     public function cetakKirExcel(Request $request, Kir $kir)
     {
         $data = $this->validateCetak($request);

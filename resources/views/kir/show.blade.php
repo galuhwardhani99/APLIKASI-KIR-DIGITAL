@@ -13,16 +13,46 @@
 
 @push('styles')
 <style>
-    table td:nth-child(2),
-    table td:nth-child(3) {
+    #tableDetailKir {
+        table-layout: fixed;
+    }
+
+    #tableDetailKir th,
+    #tableDetailKir td {
+        word-wrap: break-word;
+        vertical-align: middle;
+    }
+
+    /* Kolom No */
+    #tableDetailKir th:nth-child(1),
+    #tableDetailKir td:nth-child(1) {
+        width: 45px;
+        max-width: 45px;
+        text-align: center;
+        white-space: nowrap;
+        word-wrap: normal;
+    }
+
+    /* Kolom NIBAR & Nomor Register */
+    #tableDetailKir th:nth-child(2),
+    #tableDetailKir th:nth-child(3),
+    #tableDetailKir td:nth-child(2),
+    #tableDetailKir td:nth-child(3) {
+        width: 170px;
+        max-width: 170px;
         word-break: break-all;
         white-space: normal;
-        max-width: 350px;
         text-align: center;
-        vertical-align: middle;
         line-height: 1.5;
         font-size: 13px;
         padding: 8px 6px;
+    }
+
+    /* Kolom Kode Barang */
+    #tableDetailKir th:nth-child(4),
+    #tableDetailKir td:nth-child(4) {
+        min-width: 110px;
+        text-align: center;
     }
 </style>
 @endpush
@@ -90,21 +120,21 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-bordered table-hover table-sm mb-0">
+        <table id="tableDetailKir" class="table table-bordered table-hover table-sm mb-0">
             <thead class="thead-light">
                 <tr>
-                    <th class="text-center align-middle" style="width:40px">No</th>
-                    <th class="align-middle">NIBAR</th>
-                    <th class="align-middle">Nomor Register</th>
-                    <th class="align-middle">Kode Barang</th>
-                    <th class="align-middle">Nama Barang</th>
-                    <th class="align-middle">Spesifikasi Nama Barang</th>
-                    <th class="align-middle">Merk/Tipe</th>
-                    <th class="text-center align-middle">Tahun Perolehan</th>
-                    <th class="text-center align-middle">Jumlah</th>
-                    <th class="align-middle">Satuan</th>
-                    <th class="align-middle">Ket</th>
-                    <th class="text-center align-middle">Kondisi</th>
+                    <th class="text-center">No</th>
+                    <th>NIBAR</th>
+                    <th>Nomor Register</th>
+                    <th>Kode Barang</th>
+                    <th>Nama Barang</th>
+                    <th>Spesifikasi Nama Barang</th>
+                    <th>Merk/Tipe</th>
+                    <th class="text-center">Tahun Perolehan</th>
+                    <th class="text-center">Jumlah</th>
+                    <th>Satuan</th>
+                    <th>Ket</th>
+                    <th class="text-center">Kondisi</th>
                 </tr>
             </thead>
             <tbody>
@@ -154,8 +184,8 @@
         <p class="text-center text-muted mb-3">
             Kediri, {{ $kir->tanggal->format('d F Y') }}
         </p>
-        <div class="row mt-2">
-            <div class="col-md-4 text-center">
-                <p class="mb-0 font-weight-bold">Pengurus Barang</p>
-                <br><br><br>
-                <p class="mb-0
+
+    </div>
+</div>
+
+@endsection

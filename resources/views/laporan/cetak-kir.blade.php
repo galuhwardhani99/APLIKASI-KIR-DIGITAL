@@ -10,16 +10,17 @@
 
 @push('styles')
 <style>
+    .table th, .table td {
+        vertical-align: middle;
+        font-size: 12px;
+    }
     .table td:nth-child(2),
     .table td:nth-child(3) {
-        word-break: break-all;
-        white-space: normal;
-        max-width: 350px;
+        white-space: pre-line;
+        line-height: 1.4;
+        font-size: 11px;
+        padding: 6px 4px;
         text-align: center;
-        vertical-align: middle;
-        line-height: 1.5;
-        font-size: 13px;
-        padding: 8px 6px;
     }
 </style>
 @endpush
@@ -177,40 +178,49 @@
         </h3>
     </div>
     <div class="card-body table-responsive p-0">
-        <table class="table table-bordered table-sm mb-0">
+        <table class="table table-bordered table-sm mb-0 text-center align-middle">
             <thead class="thead-light">
                 <tr>
-                    <th width="40">No</th>
-                    <th>NIBAR</th>
-                    <th>No. Register</th>
-                    <th>Kode Barang</th>
-                    <th>Nama Barang</th>
+                    <th rowspan="2" class="align-middle" width="40">No</th>
+                    <th rowspan="2" class="align-middle" style="width:120px;">NIBAR</th>
+                    <th rowspan="2" class="align-middle" style="width:120px;">Nomor Register</th>
+                    <th rowspan="2" class="align-middle">Kode Barang</th>
+                    <th rowspan="2" class="align-middle">Nama Barang</th>
+                    <th rowspan="2" class="align-middle">Spesifikasi Nama Barang</th>
+                    <th colspan="2" class="align-middle">Spesifikasi Barang</th>
+                    <th rowspan="2" class="align-middle">Jumlah</th>
+                    <th rowspan="2" class="align-middle">Satuan</th>
+                    <th rowspan="2" class="align-middle">Ket</th>
+                </tr>
+                <tr>
                     <th>Merk/Tipe</th>
-                    <th>Tahun</th>
-                    <th class="text-center">Jumlah</th>
-                    <th>Satuan</th>
-                    <th>Ket</th>
+                    <th>Tahun Perolehan</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($kir->items as $item)
+                @php
+                    $nibarWrap    = wordwrap($item->aset->nibar ?? '-', 15, "\n", true);
+                    $registerWrap = wordwrap($item->aset->nomor_register ?? '-', 15, "\n", true);
+                @endphp
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $item->aset->nibar ?? '-' }}</td>
-                    <td>{{ $item->aset->nomor_register ?? '-' }}</td>
+                    <td>{!! nl2br(e($nibarWrap)) !!}</td>
+                    <td>{!! nl2br(e($registerWrap)) !!}</td>
                     <td><small>{{ $item->aset->kode_barang ?? '-' }}</small></td>
-                    <td><strong>{{ $item->aset->nama_barang }}</strong></td>
+                    <td class="text-left"><strong>{{ $item->aset->nama_barang }}</strong></td>
+                    <td class="text-left">{{ $item->aset->spesifikasi_nama_barang ?? '-' }}</td>
                     <td>{{ $item->aset->merk_tipe ?? '-' }}</td>
                     <td>{{ $item->aset->tahun_perolehan ?? '-' }}</td>
-                    <td class="text-center">
+                    <td>
                         {{ rtrim(rtrim(number_format($item->aset->jumlah, 2, '.', ''), '0'), '.') }}
                     </td>
                     <td>{{ $item->aset->satuan ?? '-' }}</td>
-                    <td>{{ $item->aset->keterangan ?? '-' }}</td>
+                    <td class="text-left">{{ $item->aset->keterangan ?? '-' }}</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10" class="text-center text-muted py-3">
+                    <td colspan="11" class="text-center text-muted py-3">
                         Belum ada aset pada KIR ini.
                     </td>
                 </tr>
@@ -236,19 +246,6 @@
                 <i class="fas fa-save mr-1"></i> Simpan
             </button>
 
-            {{-- Tombol Cetak PDF --}}
-            <button type="submit"
-                    formaction="{{ route('laporan.cetak-kir.pdf', $kir->id) }}"
-                    class="btn btn-danger mr-1">
-                <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
-            </button>
-
-            {{-- Tombol Cetak Excel --}}
-            <button type="submit"
-                    formaction="{{ route('laporan.cetak-kir.excel', $kir->id) }}"
-                    class="btn btn-success">
-                <i class="fas fa-file-excel mr-1"></i> Cetak Excel
-            </button>
         </div>
 
     </div>

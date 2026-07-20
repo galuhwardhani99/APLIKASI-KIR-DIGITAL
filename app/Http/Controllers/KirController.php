@@ -142,19 +142,20 @@ class KirController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            foreach ($request->aset_ids as $asetId) {
-                KirItem::create([
-                    'kir_id'  => $kir->id,
-                    'aset_id' => $asetId,
-                ]);
-            }
+            $items = collect($request->aset_ids)->map(fn ($asetId) => [
+                'kir_id'     => $kir->id,
+                'aset_id'    => $asetId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ])->all();
+
+            KirItem::insert($items);
         });
 
         return redirect()
             ->route('kir.list', $ruangan->id)
             ->with('success', 'KIR berhasil disimpan. ' . $jumlahAset . ' aset telah ditambahkan ke KIR.');
     }
-
     // ── Detail KIR ────────────────────────────────────────────────────────
     public function show(Kir $kir)
     {

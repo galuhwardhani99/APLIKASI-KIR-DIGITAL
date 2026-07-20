@@ -56,7 +56,7 @@ class KirExport implements FromArray, WithEvents, WithTitle
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                $lastCol   = 'K';
+                $lastCol    = 'K';
                 $thinBorder = [
                     'borders' => [
                         'allBorders' => [
@@ -67,17 +67,17 @@ class KirExport implements FromArray, WithEvents, WithTitle
                 ];
 
                 // ── LEBAR KOLOM ──────────────────────────────────────────
-                $sheet->getColumnDimension('A')->setWidth(7);   // No
-                $sheet->getColumnDimension('B')->setWidth(40.6);  // NIBAR (lebih lebar, tetap wrap)
-                $sheet->getColumnDimension('C')->setWidth(40.6);  // Nomor Register (lebih lebar, tetap wrap)
-                $sheet->getColumnDimension('D')->setWidth(14);  // Kode Barang
-                $sheet->getColumnDimension('E')->setWidth(24);  // Nama Barang
-                $sheet->getColumnDimension('F')->setWidth(28);  // Spesifikasi Nama Barang
-                $sheet->getColumnDimension('G')->setWidth(20);  // Merk/Tipe
-                $sheet->getColumnDimension('H')->setWidth(14);  // Tahun Perolehan
-                $sheet->getColumnDimension('I')->setWidth(9);   // Jumlah
-                $sheet->getColumnDimension('J')->setWidth(11);  // Satuan
-                $sheet->getColumnDimension('K')->setWidth(22);  // Ket
+                $sheet->getColumnDimension('A')->setWidth(7);    // No
+                $sheet->getColumnDimension('B')->setWidth(40.6); // NIBAR
+                $sheet->getColumnDimension('C')->setWidth(40.6); // Nomor Register
+                $sheet->getColumnDimension('D')->setWidth(14);   // Kode Barang
+                $sheet->getColumnDimension('E')->setWidth(24);   // Nama Barang
+                $sheet->getColumnDimension('F')->setWidth(28);   // Spesifikasi Nama Barang
+                $sheet->getColumnDimension('G')->setWidth(20);   // Merk/Tipe
+                $sheet->getColumnDimension('H')->setWidth(14);   // Tahun Perolehan
+                $sheet->getColumnDimension('I')->setWidth(9);    // Jumlah
+                $sheet->getColumnDimension('J')->setWidth(11);   // Satuan
+                $sheet->getColumnDimension('K')->setWidth(22);   // Ket
 
                 // ── JUDUL ────────────────────────────────────────────────
                 $sheet->setCellValue('A1', 'PEMERINTAH KOTA KEDIRI');
@@ -175,13 +175,11 @@ class KirExport implements FromArray, WithEvents, WithTitle
 
                         $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray($thinBorder);
 
-                        // Wrap text untuk SEMUA kolom data, biar teks panjang gak keluar kotak
                         $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getAlignment()
                             ->setVertical(Alignment::VERTICAL_CENTER)
                             ->setWrapText(true);
 
                         $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
                         $sheet->getStyle("B{$row}:C{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle("D{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle("H{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -214,8 +212,9 @@ class KirExport implements FromArray, WithEvents, WithTitle
                 $sheet->getStyle("G{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $row += 1;
+                // Pengurus Barang di-merge A s.d. C agar lebih ke kiri
                 $sheet->setCellValue("A{$row}", 'Pengurus Barang');
-                $sheet->mergeCells("A{$row}:F{$row}");
+                $sheet->mergeCells("A{$row}:C{$row}");
                 $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->setCellValue("G{$row}", 'Penanggungjawab Ruangan');
@@ -230,7 +229,7 @@ class KirExport implements FromArray, WithEvents, WithTitle
                 $nipKanan  = $this->penandatanganKanan->nip  ?? '-';
 
                 $sheet->setCellValue("A{$row}", $namaKiri);
-                $sheet->mergeCells("A{$row}:F{$row}");
+                $sheet->mergeCells("A{$row}:C{$row}");
                 $sheet->getStyle("A{$row}")->getFont()->setBold(true)->setUnderline(true);
                 $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -241,7 +240,7 @@ class KirExport implements FromArray, WithEvents, WithTitle
 
                 $row += 1;
                 $sheet->setCellValue("A{$row}", 'NIP. ' . $nipKiri);
-                $sheet->mergeCells("A{$row}:F{$row}");
+                $sheet->mergeCells("A{$row}:C{$row}");
                 $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->setCellValue("G{$row}", 'NIP. ' . $nipKanan);

@@ -8,6 +8,60 @@
     <li class="breadcrumb-item"><a href="{{ route('kir.list', $ruangan->id) }}">{{ $ruangan->nama_ruangan }}</a></li>
     <li class="breadcrumb-item active">Tambah KIR</li>
 @endsection
+@push('styles')
+<style>
+    #tableRincian {
+        table-layout: fixed;
+    }
+
+    #tableRincian th,
+    #tableRincian td {
+        word-wrap: break-word;
+    }
+
+    /* Kolom Checklist */
+    #tableRincian th:nth-child(1),
+    #tableRincian td:nth-child(1) {
+        width: 45px;
+        max-width: 45px;
+        text-align: center;
+        white-space: nowrap;
+        word-wrap: normal;
+    }
+
+    /* Kolom No */
+    #tableRincian th:nth-child(2),
+    #tableRincian td:nth-child(2) {
+        width: 55px;
+        max-width: 55px;
+        text-align: center;
+        white-space: nowrap;
+        word-wrap: normal;
+    }
+
+    /* Kolom Kode Barang */
+    #tableRincian th:nth-child(3),
+    #tableRincian td:nth-child(3) {
+        min-width: 160px;
+    }
+
+    /* Kolom NIBAR & No. Register */
+    #tableRincian th:nth-child(5),
+    #tableRincian th:nth-child(6),
+    #tableRincian td:nth-child(5),
+    #tableRincian td:nth-child(6) {
+        width: 180px;
+        max-width: 180px;
+        word-break: break-all;
+        white-space: normal;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1.5;
+        font-size: 13px;
+        padding: 8px 6px;
+    }
+</style>
+@endpush
 
 @section('content')
 
@@ -130,7 +184,7 @@
             <table class="table table-bordered table-hover mb-0" id="tableRincian">
                 <thead class="thead-light">
                     <tr>
-                        <th width="40" class="text-center align-middle">✓</th>
+                        <th class="text-center align-middle">✓</th>
                         <th class="text-center align-middle" style="width:40px">No</th>
                         <th class="align-middle">Kode Barang</th>
                         <th class="align-middle">Nama Barang</th>
@@ -187,6 +241,9 @@ const kondisiBadge = {
     hilang:       'dark',
 };
 
+// ── Penyimpanan pilihan aset (bertahan walau filter/tabel berganti) ─────
+const selectedAset = new Map(); // key: aset.id, value: data aset
+
 // ── Tombol Tampilkan ─────────────────────────────────────────────────────
 document.getElementById('btnFilter').addEventListener('click', loadAset);
 
@@ -196,6 +253,7 @@ document.getElementById('btnReset').addEventListener('click', function () {
     document.getElementById('filterKlasifikasi').value = '';
     document.getElementById('cardTabel').style.display = 'none';
     document.querySelectorAll('#tbodyRincian tr.row-aset').forEach(r => r.remove());
+    // Catatan: reset filter TIDAK menghapus aset yang sudah terpilih.
 });
 
 // ── Load aset via AJAX ───────────────────────────────────────────────────
@@ -221,6 +279,7 @@ function loadAset() {
 
         if (data.length === 0) {
             document.getElementById('rowEmpty').style.display = '';
+            updateCount();
             return;
         }
 
@@ -232,7 +291,6 @@ function loadAset() {
                 ? aset.kondisi.replace(/_/g, ' ')
                 : '-';
 
-            // Kode barang sebagai badge chip persis seperti di daftar aset
             const kodeSegments = aset.kode_lengkap
                 ? aset.kode_lengkap.split('.').filter(s => s !== '')
                 : [];
@@ -245,16 +303,19 @@ function loadAset() {
                   ).join('')
                 : '-';
 
+            const isChecked = selectedAset.has(aset.id);
+
             const row = document.createElement('tr');
             row.className = 'row-aset';
+            if (isChecked) row.classList.add('table-success');
             row.innerHTML = `
                 <td class="text-center align-middle">
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox"
                                class="custom-control-input cb-aset"
                                id="cb_${aset.id}"
-                               name="aset_ids[]"
-                               value="${aset.id}">
+                               data-id="${aset.id}"
+                               ${isChecked ? 'checked' : ''}>
                         <label class="custom-control-label" for="cb_${aset.id}"></label>
                     </div>
                 </td>
@@ -280,9 +341,14 @@ function loadAset() {
                 </td>
             `;
             tbody.appendChild(row);
+
+            // simpan/refresh data aset (untuk keperluan submit & tampilan)
+            row.querySelector('.cb-aset').addEventListener('change', function () {
+                toggleAset(aset, this.checked, row);
+            });
         });
 
-        bindCheckboxes();
+        syncCheckAllState();
     })
     .catch(() => {
         document.getElementById('rowLoading').style.display = 'none';
@@ -290,47 +356,82 @@ function loadAset() {
     });
 }
 
-// ── Checkbox logic ───────────────────────────────────────────────────────
-function bindCheckboxes() {
-    document.querySelectorAll('.cb-aset').forEach(cb => {
-        cb.addEventListener('change', updateCount);
+// ── Toggle satu aset masuk/keluar dari pilihan ───────────────────────────
+function toggleAset(aset, checked, row) {
+    if (checked) {
+        selectedAset.set(aset.id, aset);
+        if (row) row.classList.add('table-success');
+    } else {
+        selectedAset.delete(aset.id);
+        if (row) row.classList.remove('table-success');
+    }
+    rebuildHiddenInputs();
+    updateCount();
+    syncCheckAllState();
+}
+
+// ── Bangun ulang hidden input aset_ids[] sesuai isi selectedAset ─────────
+function rebuildHiddenInputs() {
+    document.querySelectorAll('.hidden-aset-id').forEach(el => el.remove());
+
+    const form = document.getElementById('formKir');
+    selectedAset.forEach((aset, id) => {
+        const input = document.createElement('input');
+        input.type  = 'hidden';
+        input.name  = 'aset_ids[]';
+        input.value = id;
+        input.className = 'hidden-aset-id';
+        form.appendChild(input);
     });
 }
 
+// ── Update tampilan jumlah & tombol simpan ───────────────────────────────
 function updateCount() {
-    const checked = document.querySelectorAll('.cb-aset:checked').length;
-    const total   = document.querySelectorAll('.cb-aset').length;
+    const checked = selectedAset.size;
 
     document.getElementById('jumlahSimpan').textContent = checked;
     document.getElementById('btnSimpan').disabled       = checked === 0;
 
     const info = document.getElementById('infoTerpilih');
     if (checked > 0) {
-        info.textContent   = checked + ' dari ' + total + ' dipilih';
+        info.textContent   = checked + ' aset dipilih (total, termasuk dari filter lain)';
         info.style.display = '';
     } else {
         info.style.display = 'none';
     }
-
-    document.getElementById('checkAll').checked =
-        checked > 0 && checked === total;
-    document.getElementById('checkAll').indeterminate =
-        checked > 0 && checked < total;
 }
 
-// ── Check All ────────────────────────────────────────────────────────────
+// ── Samakan status checkbox "Pilih Semua" dengan baris yang tampil ──────
+function syncCheckAllState() {
+    const visibleBoxes = document.querySelectorAll('.cb-aset');
+    const visibleChecked = document.querySelectorAll('.cb-aset:checked').length;
+
+    const checkAll = document.getElementById('checkAll');
+    checkAll.checked = visibleBoxes.length > 0 && visibleChecked === visibleBoxes.length;
+    checkAll.indeterminate = visibleChecked > 0 && visibleChecked < visibleBoxes.length;
+}
+
+// ── Check All (hanya memengaruhi baris yang sedang tampil) ───────────────
 document.getElementById('checkAll').addEventListener('change', function () {
-    document.querySelectorAll('.cb-aset').forEach(cb => {
+    document.querySelectorAll('#tbodyRincian tr.row-aset').forEach(row => {
+        const cb = row.querySelector('.cb-aset');
         cb.checked = this.checked;
+        const id = parseInt(cb.dataset.id, 10);
+        // ambil data aset dari row (re-fetch dari selectedAset kalau ada, atau simpan sementara)
+        toggleAset({ id: id, ...extractRowData(row) }, this.checked, row);
     });
-    updateCount();
 });
 
-// ── Highlight baris yang diceklis ────────────────────────────────────────
-document.getElementById('tbodyRincian').addEventListener('change', function (e) {
-    if (e.target.classList.contains('cb-aset')) {
-        e.target.closest('tr').classList.toggle('table-success', e.target.checked);
-    }
+// ── Ambil data minimal dari baris (fallback kalau perlu) ─────────────────
+function extractRowData(row) {
+    return {}; // toggleAset hanya butuh id untuk hidden input; data lengkap sudah tersimpan saat render pertama
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────
+document.getElementById('formKir').addEventListener('submit', function () {
+    const btn = document.getElementById('btnSimpan');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan...';
 });
 </script>
 @endpush
