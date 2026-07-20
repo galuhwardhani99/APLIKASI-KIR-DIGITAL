@@ -8,18 +8,25 @@ use Illuminate\Http\Request;
 class PicController extends Controller
 {
     /**
-     * Riwayat PIC — dikelompokkan berdasarkan pengguna_barang dari KIR,
-     * menampilkan aset apa saja yang dipegang oleh masing-masing orang.
+     * Riwayat PIC — berdasarkan pengguna barang dari tabel ruangans
      */
     public function history()
     {
-        $kirs = Kir::with(['items.aset', 'ruangan'])
-            ->whereNotNull('pengguna_barang')
-            ->where('pengguna_barang', '!=', '')
+        $kirs = Kir::with([
+                'items.aset',
+                'ruangan'
+            ])
+            ->whereHas('ruangan', function ($query) {
+                $query->whereNotNull('pengguna_barang')
+                      ->where('pengguna_barang', '!=', '');
+            })
             ->get();
 
+
         $riwayatPic = $kirs
-            ->groupBy('pengguna_barang')
+            ->groupBy(function ($kir) {
+                return $kir->ruangan->pengguna_barang;
+            })
             ->map(function ($kirGroup, $namaPengguna) {
 
                 $asets = $kirGroup
@@ -28,38 +35,48 @@ class PicController extends Controller
                     ->unique('id')
                     ->values();
 
+
                 $ruanganList = $kirGroup
                     ->pluck('ruangan.nama_ruangan')
                     ->filter()
                     ->unique()
                     ->values();
 
+
                 return [
-                    'nama'          => $namaPengguna,
-                    'ruangan_list'  => $ruanganList,
-                    'jumlah_aset'   => $asets->count(),
-                    'asets'         => $asets,
+                    'nama'         => $namaPengguna,
+                    'ruangan_list' => $ruanganList,
+                    'jumlah_aset'  => $asets->count(),
+                    'asets'        => $asets,
                 ];
+
             })
             ->sortBy('nama')
             ->values();
 
+
         return view('pic.history', compact('riwayatPic'));
     }
 
-    /**
-     * Update nama pengguna barang — mengubah pengguna_barang
-     * di SEMUA baris KIR yang memakai nama lama tersebut.
-     */
+
 
     public function editNama(Request $request)
-{
-    $request->validate([
-        'nama' => 'required|string|max:255',
-    ]);
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+        ]);
 
-    return view('pic.update-nama', ['nama' => $request->nama]);
-}
+        return view('pic.update-nama', [
+            'nama' => $request->nama
+        ]);
+    }
+
+
+
+    /**
+     * Update nama pengguna barang
+     * Sekarang update dilakukan di tabel ruangans
+     */
     public function updateNama(Request $request)
     {
         $request->validate([
@@ -67,18 +84,25 @@ class PicController extends Controller
             'nama_baru' => 'required|string|max:255',
         ]);
 
-        Kir::where('pengguna_barang', $request->nama_lama)
-            ->update(['pengguna_barang' => $request->nama_baru]);
+
+        \App\Models\Ruangan::where('pengguna_barang', $request->nama_lama)
+            ->update([
+                'pengguna_barang' => $request->nama_baru
+            ]);
+
 
         return redirect()
             ->route('pic.history')
-            ->with('success', "Nama pengguna barang berhasil diubah menjadi \"{$request->nama_baru}\".");
+            ->with(
+                'success',
+                "Nama pengguna barang berhasil diubah menjadi \"{$request->nama_baru}\"."
+            );
     }
 
+
+
     /**
-     * Hapus dari Riwayat PIC — mengosongkan pengguna_barang
-     * di semua KIR terkait nama tersebut. Dokumen KIR & data
-     * aset tidak ikut terhapus, hanya "label" pengguna barangnya.
+     * Hapus pengguna barang dari riwayat PIC
      */
     public function destroyNama(Request $request)
     {
@@ -86,11 +110,18 @@ class PicController extends Controller
             'nama' => 'required|string|max:255',
         ]);
 
-        Kir::where('pengguna_barang', $request->nama)
-            ->update(['pengguna_barang' => null]);
+
+        \App\Models\Ruangan::where('pengguna_barang', $request->nama)
+            ->update([
+                'pengguna_barang' => null
+            ]);
+
 
         return redirect()
             ->route('pic.history')
-            ->with('success', "\"{$request->nama}\" berhasil dihapus dari Riwayat PIC.");
+            ->with(
+                'success',
+                "\"{$request->nama}\" berhasil dihapus dari Riwayat PIC."
+            );
     }
 }

@@ -43,4 +43,9 @@ class Aset extends Model
     {
         return $this->belongsToMany(Kir::class, 'aset_kir');
     }
+
+    public function mutasis()
+    {
+        return $this->hasMany(Mutasi::class);
+    }
 }

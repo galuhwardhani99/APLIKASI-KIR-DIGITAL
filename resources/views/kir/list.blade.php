@@ -72,7 +72,7 @@
                 <i class="fas fa-clipboard-list mr-1"></i>
                 KIR #{{ $i + 1 }}
                 &nbsp;—&nbsp;
-                <strong>{{ $kir->tanggal->format('d/m/Y') }}</strong>
+                <strong>{{ $kir->tahun }}</strong>
                 <span class="badge badge-info ml-2">{{ $kir->items_count }} aset</span>
             </h3>
             <small class="text-muted">
@@ -103,7 +103,7 @@
             <button type="button"
                     class="btn btn-danger btn-sm btn-hapus-kir"
                     data-id="{{ $kir->id }}"
-                    data-tanggal="{{ $kir->tanggal->format('d/m/Y') }}"
+                    data-tanggal="{{ $kir->created_at->format('d/m/Y') }}"
                     data-toggle="modal"
                     data-target="#modalHapusKir"
                     title="Hapus">
