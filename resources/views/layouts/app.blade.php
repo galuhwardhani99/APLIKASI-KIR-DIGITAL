@@ -210,9 +210,11 @@
                     {{-- Mutasi Aset --}}
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
-                        <a href="#" class="nav-link {{ request()->routeIs('mutasi.*') ? 'active' : '' }}">
+                        <a href="{{ route('mutasi.index') }}" class="nav-link">
                             <i class="nav-icon fas fa-exchange-alt"></i>
-                            <p>Mutasi Aset</p>
+                            <p>
+                                Mutasi Aset
+                            </p>
                         </a>
                     </li>
                     @endif

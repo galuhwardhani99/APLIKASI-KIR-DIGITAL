@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aset;
 use App\Models\Ruangan;
-use App\Models\MutasiAset;
+use App\Models\Mutasi;
 use App\Models\Notifikasi;
 
 class DashboardController extends Controller
@@ -32,7 +32,7 @@ class DashboardController extends Controller
         $chartData   = $ruangans->pluck('total_aset');
 
         // ── Mutasi terakhir (5 data) ────────────────────────────────────────
-        $mutasiTerakhir = MutasiAset::with(['aset', 'ruanganAsal', 'ruanganTujuan'])
+        $mutasiTerakhir = Mutasi::with(['aset', 'ruanganAsal', 'ruanganTujuan'])
             ->latest()
             ->take(5)
             ->get();

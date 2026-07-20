@@ -9,6 +9,7 @@ use App\Http\Controllers\AsetController;
 use App\Http\Controllers\KirController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\MutasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -147,10 +148,18 @@ Route::middleware('auth')->group(function () {
         Route::delete('pic/history/hapus-nama', [PicController::class, 'destroyNama'])->name('pic.delete-nama');
 
         // Mutasi (uncomment setelah MutasiController dibuat)
-        // Route::get('mutasi',             [MutasiController::class, 'index'])->name('mutasi.index');
-        // Route::get('mutasi/create',      [MutasiController::class, 'create'])->name('mutasi.create');
-        // Route::post('mutasi',            [MutasiController::class, 'store'])->name('mutasi.store');
-        // Route::get('mutasi/{mutasi}',    [MutasiController::class, 'show'])->name('mutasi.show');
+        // Mutasi Aset
+          Route::get('mutasi',
+          [MutasiController::class, 'index']
+          )->name('mutasi.index');
+
+          Route::get('mutasi/create',
+          [MutasiController::class, 'create']
+          )->name('mutasi.create');
+
+          Route::post('mutasi',
+          [MutasiController::class, 'store']
+          )->name('mutasi.store');
 
     });
 

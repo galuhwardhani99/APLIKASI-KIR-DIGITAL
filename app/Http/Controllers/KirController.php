@@ -37,10 +37,10 @@ class KirController extends Controller
     public function list(Ruangan $ruangan)
     {
         $kirs = Kir::where('ruangan_id', $ruangan->id)
-                   ->withCount('items')
-                   ->orderByDesc('tanggal')
-                   ->orderByDesc('id')
-                   ->get();
+                    ->withCount('items')
+                    ->orderByDesc('tahun')
+                    ->orderByDesc('id')
+                    ->get();
 
         $kirs->load(['items.aset.klasifikasiBarang.parent.parent.parent']);
 
@@ -135,12 +135,11 @@ class KirController extends Controller
 
         DB::transaction(function () use ($request, $ruangan) {
             $kir = Kir::create([
-                'ruangan_id'          => $ruangan->id,
-                'pengguna_barang'     => null,
-                'pengurus_barang_id'  => null,
-                'penanggung_jawab_id' => null,
-                'tanggal'             => $request->tanggal,
-                'keterangan'          => null,
+                'ruangan_id' => $ruangan->id,
+                'nomor_kir' => 'KIR-' . time(),
+                'tahun' => date('Y'),
+                'status' => 'draft',
+                'created_by' => auth()->id(),
             ]);
 
             foreach ($request->aset_ids as $asetId) {
