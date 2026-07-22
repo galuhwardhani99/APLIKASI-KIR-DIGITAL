@@ -37,40 +37,53 @@
         <div class="card-body">
 
 
+            {{-- PILIH ASET --}}
             <div class="form-group">
+
                 <label>
                     Pilih Aset
                 </label>
 
-                <select name="aset_id"
-                        class="form-control"
-                        required>
 
-                    <option value="">
-                        -- Pilih Aset --
-                    </option>
+                <input type="text"
+                       id="aset_search"
+                       class="form-control"
+                       list="daftar_aset"
+                       placeholder="Ketik nama aset atau kode barang..."
+                       autocomplete="off"
+                       required>
 
+
+                <datalist id="daftar_aset">
 
                     @foreach($asets as $aset)
 
-                    <option value="{{ $aset->id }}">
-
-                        {{ $aset->nama_barang }}
-
-                        -
-                        {{ $aset->ruangan?->nama_ruangan ?? 'Belum ditempatkan' }}
-
+                    <option
+                        value="{{ $aset->nama_barang }} | Kode: {{ $aset->kode_barang ?? '-' }} | {{ $aset->ruangan?->nama_ruangan ?? 'Belum ditempatkan' }}"
+                        data-id="{{ $aset->id }}">
                     </option>
 
                     @endforeach
 
-                </select>
+                </datalist>
+
+
+                <input type="hidden"
+                       name="aset_id"
+                       id="aset_id">
+
+
+                <small class="text-muted">
+                    Pilih aset berdasarkan nama atau kode barang.
+                </small>
+
 
             </div>
 
 
 
 
+            {{-- RUANGAN TUJUAN --}}
             <div class="form-group">
 
                 <label>
@@ -104,6 +117,7 @@
 
 
 
+            {{-- PEMOHON --}}
             <div class="form-group">
 
                 <label>
@@ -140,6 +154,7 @@
 
 
 
+            {{-- TANGGAL --}}
             <div class="form-group">
 
                 <label>
@@ -158,6 +173,7 @@
 
 
 
+            {{-- ALASAN --}}
             <div class="form-group">
 
                 <label>
@@ -181,7 +197,8 @@
 
         <div class="card-footer">
 
-            <button class="btn btn-primary">
+            <button type="submit"
+                    class="btn btn-primary">
 
                 <i class="fas fa-paper-plane"></i>
                 Ajukan Mutasi
@@ -206,3 +223,54 @@
 
 
 @endsection
+
+
+
+@push('scripts')
+
+<script>
+
+document.getElementById('aset_search').addEventListener('change', function () {
+
+    let inputValue = this.value;
+
+    let options = document.querySelectorAll('#daftar_aset option');
+
+    let asetId = '';
+
+    options.forEach(function(option){
+
+        if(option.value === inputValue){
+
+            asetId = option.dataset.id;
+
+        }
+
+    });
+
+
+    document.getElementById('aset_id').value = asetId;
+
+
+});
+
+
+
+document.querySelector('form').addEventListener('submit', function(e){
+
+    let asetId = document.getElementById('aset_id').value;
+
+
+    if(!asetId){
+
+        e.preventDefault();
+
+        alert('Silahkan pilih aset yang tersedia.');
+
+    }
+
+});
+
+</script>
+
+@endpush

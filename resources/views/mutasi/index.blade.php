@@ -84,6 +84,8 @@ Tambah Permintaan
 
 <th>Tanggal</th>
 
+<th>Keterangan</th>
+
 <th>Status</th>
 
 @if(Auth::user()->role === 'auditor')
@@ -161,7 +163,11 @@ Kode:
 
 </td>
 
+<td>
 
+{{ $mutasi->alasan ?? '-' }}
+
+</td>
 
 
 <td>
