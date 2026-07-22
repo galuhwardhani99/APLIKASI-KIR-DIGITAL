@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -162,16 +163,21 @@ class KirExport implements FromArray, WithEvents, WithTitle
                         $jumlah = rtrim(rtrim(number_format($aset->jumlah, 2, '.', ''), '0'), '.');
 
                         $sheet->setCellValue("A{$row}", $no);
-                        $sheet->setCellValue("B{$row}", $aset->nibar);
-                        $sheet->setCellValue("C{$row}", $aset->nomor_register);
-                        $sheet->setCellValue("D{$row}", $aset->kode_barang);
+                        
+                        // Menggunakan setCellValueExplicit agar angka panjang (seperti NIBAR & Keterangan) tetap dibaca String
+                        $sheet->setCellValueExplicit("B{$row}", (string) $aset->nibar, DataType::TYPE_STRING);
+                        $sheet->setCellValueExplicit("C{$row}", (string) $aset->nomor_register, DataType::TYPE_STRING);
+                        $sheet->setCellValueExplicit("D{$row}", (string) $aset->kode_barang, DataType::TYPE_STRING);
+                        
                         $sheet->setCellValue("E{$row}", $aset->nama_barang);
                         $sheet->setCellValue("F{$row}", $aset->spesifikasi_nama_barang);
                         $sheet->setCellValue("G{$row}", $aset->merk_tipe);
                         $sheet->setCellValue("H{$row}", $aset->tahun_perolehan);
                         $sheet->setCellValue("I{$row}", $jumlah);
                         $sheet->setCellValue("J{$row}", $aset->satuan);
-                        $sheet->setCellValue("K{$row}", $aset->keterangan);
+                        
+                        // Kolom K (Ket) dipaksa String agar tidak menjadi 1.303E+16
+                        $sheet->setCellValueExplicit("K{$row}", (string) $aset->keterangan, DataType::TYPE_STRING);
 
                         $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray($thinBorder);
 
@@ -179,11 +185,15 @@ class KirExport implements FromArray, WithEvents, WithTitle
                             ->setVertical(Alignment::VERTICAL_CENTER)
                             ->setWrapText(true);
 
+                        // Alignment posisi kolom
                         $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle("B{$row}:C{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle("D{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle("H{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle("I{$row}:J{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                        
+                        // Kolom K (Ket) dibuat rata tengah (Center)
+                        $sheet->getStyle("K{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                         $sheet->getRowDimension($row)->setRowHeight(-1);
 

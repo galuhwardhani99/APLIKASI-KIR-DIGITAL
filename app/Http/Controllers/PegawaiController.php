@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PegawaiController extends Controller
 {
@@ -15,11 +16,19 @@ class PegawaiController extends Controller
 
     public function create()
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         return view('pegawai.create');
     }
 
     public function store(Request $request)
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         $request->validate([
             'nip'        => 'required|unique:pegawais,nip|max:30',
             'nama'       => 'required|max:255',
@@ -45,11 +54,19 @@ class PegawaiController extends Controller
 
     public function edit(Pegawai $pegawai)
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         return view('pegawai.edit', compact('pegawai'));
     }
 
     public function update(Request $request, Pegawai $pegawai)
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         $request->validate([
             'nip'        => 'required|max:30|unique:pegawais,nip,' . $pegawai->id,
             'nama'       => 'required|max:255',
@@ -76,6 +93,10 @@ class PegawaiController extends Controller
 
     public function destroy(Pegawai $pegawai)
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         $pegawai->delete();
         return redirect()->route('pegawai.index')
                          ->with('success', 'Pegawai berhasil dihapus.');

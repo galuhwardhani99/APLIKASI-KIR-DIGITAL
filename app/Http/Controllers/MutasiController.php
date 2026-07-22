@@ -125,5 +125,42 @@ class MutasiController extends Controller
             ->route('mutasi.index')
             ->with('success', 'Permintaan mutasi berhasil dibuat.');
     }
+    public function validasi(Request $request, Mutasi $mutasi)
+    {
+        $data = $request->validate([
+            'status'           => 'required|in:disetujui,ditolak',
+            'catatan_validasi' => 'nullable|string',
+        ], [
+            'status.required' => 'Status validasi wajib dipilih.',
+            'status.in'       => 'Status tidak valid.',
+        ]);
+
+        // Cegah validasi ganda kalau mutasi sudah diproses sebelumnya
+        if ($mutasi->status !== 'pending') {
+            return redirect()
+                ->route('mutasi.index')
+                ->with('success', 'Permintaan ini sudah diproses sebelumnya.');
+        }
+
+        $mutasi->update([
+            'status'            => $data['status'],
+            'penerima_id'       => auth()->id(),
+            'tanggal_validasi'  => now(),
+            'catatan_validasi'  => $data['catatan_validasi'] ?? null,
+        ]);
+
+        // Kalau disetujui, pindahkan aset ke ruangan tujuan
+        if ($data['status'] === 'disetujui') {
+            $mutasi->aset->update([
+                'ruangan_id' => $mutasi->ruangan_tujuan_id,
+            ]);
+        }
+
+        $label = $data['status'] === 'disetujui' ? 'disetujui' : 'ditolak';
+
+        return redirect()
+            ->route('mutasi.index')
+            ->with('success', "Permintaan mutasi berhasil {$label}.");
+    }
 
 }

@@ -97,50 +97,65 @@
                     <li class="nav-header">MASTER DATA</li>
 
                     {{-- Data Aset --}}
-                    <li class="nav-item {{ request()->routeIs('aset.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->routeIs('aset.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-box"></i>
-                            <p>Data Aset<i class="fas fa-angle-left right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            @if(Auth::user()->role === 'admin')
-                            <li class="nav-item">
-                                <a href="{{ route('aset.create') }}" class="nav-link {{ request()->routeIs('aset.create') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i><p>Tambah Aset</p>
-                                </a>
-                            </li>
-                            @endif
-                            <li class="nav-item">
-                                <a href="{{ route('aset.index') }}" class="nav-link {{ request()->routeIs('aset.index') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i><p>Daftar Aset</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if(Auth::user()->role === 'admin')
+                        <li class="nav-item {{ request()->routeIs('aset.*') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ request()->routeIs('aset.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-box"></i>
+                                <p>Data Aset<i class="fas fa-angle-left right"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('aset.create') }}" class="nav-link {{ request()->routeIs('aset.create') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i><p>Tambah Aset</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('aset.index') }}" class="nav-link {{ request()->routeIs('aset.index') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i><p>Daftar Aset</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a href="{{ route('aset.index') }}" class="nav-link {{ request()->routeIs('aset.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-box"></i>
+                                <p>Data Aset</p>
+                            </a>
+                        </li>
+                    @endif
 
                     {{-- Data Ruangan --}}
-                    <li class="nav-item {{ request()->routeIs('ruangan.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->routeIs('ruangan.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-door-open"></i>
-                            <p>Data Ruangan<i class="fas fa-angle-left right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            @if(Auth::user()->role === 'admin')
-                            <li class="nav-item">
-                                <a href="{{ route('ruangan.create') }}"
-                                   class="nav-link {{ request()->routeIs('ruangan.create') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i><p>Tambah Ruangan</p>
-                                </a>
-                            </li>
-                            @endif
-                            <li class="nav-item">
-                                <a href="{{ route('ruangan.index') }}"
-                                   class="nav-link {{ request()->routeIs('ruangan.index') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i><p>Daftar Ruangan</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if(Auth::user()->role === 'admin')
+                        <li class="nav-item {{ request()->routeIs('ruangan.*') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ request()->routeIs('ruangan.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-door-open"></i>
+                                <p>Data Ruangan<i class="fas fa-angle-left right"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('ruangan.create') }}"
+                                       class="nav-link {{ request()->routeIs('ruangan.create') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i><p>Tambah Ruangan</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('ruangan.index') }}"
+                                       class="nav-link {{ request()->routeIs('ruangan.index') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i><p>Daftar Ruangan</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a href="{{ route('ruangan.index') }}"
+                               class="nav-link {{ request()->routeIs('ruangan.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-door-open"></i>
+                                <p>Data Ruangan</p>
+                            </a>
+                        </li>
+                    @endif
 
                     {{-- Data PIC --}}
                     <li class="nav-item">
@@ -151,9 +166,9 @@
                         </a>
                     </li>
 
-                    {{-- Data Pegawai --}}
-                    @if(Auth::user()->role === 'admin')
-                    <li class="nav-item {{ request()->routeIs('pegawai.*') ? 'menu-open' : '' }}">
+                    {{-- Data Pegawai (Admin & Auditor) --}}
+                    @if(in_array(Auth::user()->role, ['admin', 'auditor']))
+                    <li class="nav-item">
                         <a href="{{ route('pegawai.index') }}"
                            class="nav-link {{ request()->routeIs('pegawai.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
@@ -208,16 +223,12 @@
                     </li>
 
                     {{-- Mutasi Aset --}}
-                    @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
-                        <a href="{{ route('mutasi.index') }}" class="nav-link">
+                        <a href="{{ route('mutasi.index') }}" class="nav-link {{ request()->routeIs('mutasi.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-exchange-alt"></i>
-                            <p>
-                                Mutasi Aset
-                            </p>
+                            <p>Mutasi Aset</p>
                         </a>
                     </li>
-                    @endif
 
                     {{-- Scan QR Code --}}
                     <li class="nav-item">
@@ -230,14 +241,14 @@
                     <li class="nav-header">LAPORAN</li>
 
                     {{-- Laporan KIR --}}
-                        @php
-                            $isLaporanActive = request()->routeIs('laporan.ruangan', 'laporan.kondisi', 'laporan.mutasi', 'laporan.pic');
-                        @endphp
-                        <li class="nav-item {{ $isLaporanActive ? 'menu-open' : '' }}">
-                            <a href="#" class="nav-link {{ $isLaporanActive ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-file-alt"></i>
-                                <p>Laporan KIR<i class="fas fa-angle-left right"></i></p>
-                            </a>
+                    @php
+                        $isLaporanActive = request()->routeIs('laporan.ruangan', 'laporan.kondisi', 'laporan.mutasi', 'laporan.pic');
+                    @endphp
+                    <li class="nav-item {{ $isLaporanActive ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ $isLaporanActive ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-file-alt"></i>
+                            <p>Laporan KIR<i class="fas fa-angle-left right"></i></p>
+                        </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="#" class="nav-link {{ request()->routeIs('laporan.ruangan') ? 'active' : '' }}">

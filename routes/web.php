@@ -77,13 +77,16 @@ Route::middleware('auth')->group(function () {
     // PIC
     Route::get('pic/history', [PicController::class, 'history'])->name('pic.history');
 
+    // Mutasi — index bisa dilihat admin & auditor
+    Route::get('mutasi', [MutasiController::class, 'index'])->name('mutasi.index');
+
     // API internal
     Route::get('api/pegawai/{pegawai}/nip', [PegawaiController::class, 'getNip'])->name('api.pegawai.nip');
     Route::get('pic/ruangan/{ruangan}',     [PicController::class, 'getPicTerakhir'])->name('pic.get');
 
     Route::get('api/aset/by-klasifikasi/{id}', 
-    [AsetController::class, 'getAsetByKlasifikasi']
-          )->name('aset.byKlasifikasi');
+        [AsetController::class, 'getAsetByKlasifikasi']
+    )->name('aset.byKlasifikasi');
 
     /*
     |----------------------------------------------------------------------
@@ -105,6 +108,16 @@ Route::middleware('auth')->group(function () {
              ->name('inventarisasi.simpan')
              ->middleware('role:admin');
 
+    });
+
+    /*
+    |----------------------------------------------------------------------
+    | AUDITOR ONLY
+    |----------------------------------------------------------------------
+    */
+    Route::middleware('role:auditor')->group(function () {
+        Route::put('mutasi/{mutasi}/validasi', [MutasiController::class, 'validasi'])
+             ->name('mutasi.validasi');
     });
 
     /*
@@ -147,19 +160,9 @@ Route::middleware('auth')->group(function () {
         Route::put('pic/history/update-nama',   [PicController::class, 'updateNama'])->name('pic.update-nama');
         Route::delete('pic/history/hapus-nama', [PicController::class, 'destroyNama'])->name('pic.delete-nama');
 
-        // Mutasi (uncomment setelah MutasiController dibuat)
-        // Mutasi Aset
-          Route::get('mutasi',
-          [MutasiController::class, 'index']
-          )->name('mutasi.index');
-
-          Route::get('mutasi/create',
-          [MutasiController::class, 'create']
-          )->name('mutasi.create');
-
-          Route::post('mutasi',
-          [MutasiController::class, 'store']
-          )->name('mutasi.store');
+        // Mutasi
+        Route::get('mutasi/create', [MutasiController::class, 'create'])->name('mutasi.create');
+        Route::post('mutasi',       [MutasiController::class, 'store'])->name('mutasi.store');
 
     });
 

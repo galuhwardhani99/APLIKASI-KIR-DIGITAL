@@ -116,7 +116,9 @@
                 <td>{{ $aset->tahun_perolehan }}</td>
                 <td>{{ rtrim(rtrim(number_format($aset->jumlah, 2, '.', ''), '0'), '.') }}</td>
                 <td>{{ $aset->satuan }}</td>
-                <td class="left">{{ $aset->keterangan }}</td>
+                <td style="text-align: center; vertical-align: middle; word-wrap: break-word;">
+                    {{ $item->aset->keterangan ?? '-' }}
+                </td>
             </tr>
         @empty
             <tr>

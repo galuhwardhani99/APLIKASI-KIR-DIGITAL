@@ -21,9 +21,13 @@
         <h3 class="card-title mr-auto">
             <i class="fas fa-users mr-1"></i> Daftar Pegawai
         </h3>
+        
+        {{-- Hanya Admin yang bisa melihat tombol Tambah --}}
+        @if(Auth::user()->role === 'admin')
         <a href="{{ route('pegawai.create') }}" class="btn btn-primary btn-sm">
             <i class="fas fa-plus mr-1"></i> Tambah Pegawai
         </a>
+        @endif
     </div>
 
     <div class="card-body p-0">
@@ -36,7 +40,11 @@
                     <th>Jabatan</th>
                     <th>Unit Kerja</th>
                     <th class="text-center" width="90">Status</th>
+                    
+                    {{-- Sembunyikan Header Aksi untuk Auditor --}}
+                    @if(Auth::user()->role === 'admin')
                     <th class="text-center" width="100">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -54,13 +62,15 @@
                             <span class="badge badge-secondary">Non-aktif</span>
                         @endif
                     </td>
+
+                    {{-- Sembunyikan Tombol Edit/Hapus untuk Auditor --}}
+                    @if(Auth::user()->role === 'admin')
                     <td class="text-center">
                         <a href="{{ route('pegawai.edit', $p) }}"
                            class="btn btn-warning btn-xs"
                            title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        {{-- Tombol hapus → trigger modal --}}
                         <button type="button"
                                 class="btn btn-danger btn-xs btn-hapus"
                                 data-id="{{ $p->id }}"
@@ -71,12 +81,15 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
+                    <td colspan="{{ Auth::user()->role === 'admin' ? '7' : '6' }}" class="text-center text-muted py-4">
                         Belum ada data pegawai.
-                        <a href="{{ route('pegawai.create') }}">Tambah sekarang</a>
+                        @if(Auth::user()->role === 'admin')
+                            <a href="{{ route('pegawai.create') }}">Tambah sekarang</a>
+                        @endif
                     </td>
                 </tr>
                 @endforelse
@@ -91,13 +104,11 @@
     @endif
 </div>
 
-{{-- ══════════════════════════════════════════ --}}
-{{-- MODAL KONFIRMASI HAPUS                     --}}
-{{-- ══════════════════════════════════════════ --}}
+{{-- MODAL HAPUS --}}
+@if(Auth::user()->role === 'admin')
 <div class="modal fade" id="modalHapus" tabindex="-1" role="dialog" aria-labelledby="labelModalHapus" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
         <div class="modal-content">
-
             <div class="modal-header bg-danger text-white py-2">
                 <h6 class="modal-title" id="labelModalHapus">
                     <i class="fas fa-exclamation-triangle mr-1"></i> Konfirmasi Hapus
@@ -106,13 +117,11 @@
                     <span>&times;</span>
                 </button>
             </div>
-
             <div class="modal-body text-center py-4">
                 <i class="fas fa-user-times fa-3x text-danger mb-3"></i>
                 <p class="mb-1">Hapus pegawai ini?</p>
                 <p class="font-weight-bold mb-0" id="namaHapus">—</p>
             </div>
-
             <div class="modal-footer justify-content-center py-2">
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
                     <i class="fas fa-times mr-1"></i> Batal
@@ -125,16 +134,16 @@
                     </button>
                 </form>
             </div>
-
         </div>
     </div>
 </div>
+@endif
 
 @endsection
 
 @push('scripts')
+@if(Auth::user()->role === 'admin')
 <script>
-// Isi modal dengan data baris yang diklik
 document.querySelectorAll('.btn-hapus').forEach(function (btn) {
     btn.addEventListener('click', function () {
         const id   = this.dataset.id;
@@ -144,4 +153,5 @@ document.querySelectorAll('.btn-hapus').forEach(function (btn) {
     });
 });
 </script>
+@endif
 @endpush

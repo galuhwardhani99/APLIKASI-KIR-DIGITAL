@@ -29,10 +29,13 @@
             Daftar Ruangan
         </h3>
 
-        <a href="{{ route('ruangan.create') }}" class="btn btn-primary btn-sm">
+        {{-- Tombol Tambah Ruangan HANYA Tampil untuk Admin --}}
+        @if(Auth::user()->role === 'admin')
+        <a href="{{ route('ruangan.create') }}" class="btn btn-primary btn-sm ml-auto">
             <i class="fas fa-plus mr-1"></i>
             Tambah Ruangan
         </a>
+        @endif
 
     </div>
 
@@ -45,7 +48,10 @@
                 <tr>
                     <th width="60">No</th>
                     <th>Nama Ruangan</th>
-                    <th width="120">Aksi</th>
+                    {{-- Kolom Aksi HANYA Tampil untuk Admin --}}
+                    @if(Auth::user()->role === 'admin')
+                    <th width="120" class="text-center">Aksi</th>
+                    @endif
                 </tr>
 
             </thead>
@@ -60,6 +66,8 @@
 
                     <td>{{ $ruangan->nama_ruangan }}</td>
 
+                    {{-- Tombol Edit & Hapus HANYA Tampil untuk Admin --}}
+                    @if(Auth::user()->role === 'admin')
                     <td class="text-center">
 
                         <a href="{{ route('ruangan.edit', $ruangan->id) }}"
@@ -82,6 +90,7 @@
                         </button>
 
                     </td>
+                    @endif
 
                 </tr>
 
@@ -96,8 +105,9 @@
 </div>
 
 {{-- ============================= --}}
-{{-- MODAL KONFIRMASI HAPUS --}}
+{{-- MODAL KONFIRMASI HAPUS (KHUSUS ADMIN) --}}
 {{-- ============================= --}}
+@if(Auth::user()->role === 'admin')
 <div class="modal fade" id="modalHapus" tabindex="-1" role="dialog" aria-labelledby="labelModalHapus" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
@@ -163,6 +173,7 @@
     </div>
 
 </div>
+@endif
 
 @endsection
 
@@ -191,10 +202,7 @@ $(function () {
 
     });
 
-    // ============================
-    // Modal Hapus
-    // ============================
-
+    // Modal Hapus JS (Hanya jika Admin)
     $('.btn-hapus').on('click', function () {
 
         let id = $(this).data('id');

@@ -77,7 +77,30 @@ class AsetController extends Controller
         return view('aset.index', compact('asets'));
     }
 
+    /**
+     * Menampilkan detail data aset (Bisa diakses oleh Admin & Auditor)
+     */
+    public function show(Aset $aset)
+    {
+        // Load relasi hirarki klasifikasi barang
+        $aset->load('klasifikasiBarang.parent.parent.parent');
 
+        $level6 = $aset->klasifikasiBarang;
+        $level5 = $level6?->parent;
+        $level4 = $level5?->parent;
+        $level3 = $level4?->parent;
+
+        $aset->level3_label = $level3 ? "{$level3->kode} — {$level3->nama}" : 'BELUM DIKATEGORIKAN';
+        $aset->level4_label = $level4 ? "{$level4->kode} — {$level4->nama}" : 'BELUM DIKATEGORIKAN';
+        $aset->level5_label = $level5 ? "{$level5->kode} — {$level5->nama}" : 'BELUM DIKATEGORIKAN';
+        $aset->level6_label = $level6 ? "{$level6->kode} — {$level6->nama}" : 'BELUM DIKATEGORIKAN';
+
+        $aset->kode_barang_lengkap = $level6
+            ? "{$level6->kode}.{$aset->kode_barang}"
+            : $aset->kode_barang;
+
+        return view('aset.show', compact('aset'));
+    }
 
     public function create()
     {
@@ -87,8 +110,6 @@ class AsetController extends Controller
             'klasifikasiList'
         ));
     }
-
-
 
     public function getAsetByKlasifikasi($id)
     {
@@ -101,8 +122,6 @@ class AsetController extends Controller
 
         return response()->json($asets);
     }
-
-
 
     public function store(Request $request)
     {
@@ -154,36 +173,25 @@ class AsetController extends Controller
                 'required|in:baik,rusak_ringan,rusak_berat,hilang',
         ]);
 
-
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
 
-
         Aset::create($validated);
-
 
         return redirect()
             ->route('aset.index')
             ->with('success', 'Aset berhasil ditambahkan.');
     }
 
-
-
-
     public function edit(Aset $aset)
     {
         $klasifikasiList = KlasifikasiBarang::orderBy('kode')->get();
-
 
         return view('aset.edit', compact(
             'aset',
             'klasifikasiList'
         ));
     }
-
-
-
-
 
     public function update(Request $request, Aset $aset)
     {
@@ -236,26 +244,18 @@ class AsetController extends Controller
                 'required|in:baik,rusak_ringan,rusak_berat,hilang',
         ]);
 
-
         $validated['updated_by'] = auth()->id();
 
-
         $aset->update($validated);
-
 
         return redirect()
             ->route('aset.index')
             ->with('success', 'Aset berhasil diperbarui.');
     }
 
-
-
-
-
     public function destroy(Aset $aset)
     {
         $aset->delete();
-
 
         return redirect()
             ->route('aset.index')
