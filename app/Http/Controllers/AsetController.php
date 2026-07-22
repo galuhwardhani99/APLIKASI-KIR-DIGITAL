@@ -5,77 +5,80 @@ namespace App\Http\Controllers;
 use App\Models\Aset;
 use App\Models\KlasifikasiBarang;
 use Illuminate\Http\Request;
+use App\Models\Ruangan;
 
 class AsetController extends Controller
 {
     public function index()
-    {
-        $asets = Aset::with('klasifikasiBarang.parent.parent.parent')->get();
+{
+    $asets = Aset::with([
+        'ruangan',
+        'klasifikasiBarang.parent.parent.parent'
+    ])->get();
 
-        $asets = $asets->map(function ($aset) {
+    $asets = $asets->map(function ($aset) {
 
-            $level6 = $aset->klasifikasiBarang;
-            $level5 = $level6?->parent;
-            $level4 = $level5?->parent;
-            $level3 = $level4?->parent;
-
-
-            $aset->level3_label = $level3
-                ? "{$level3->kode} — {$level3->nama}"
-                : 'BELUM DIKATEGORIKAN';
+        $level6 = $aset->klasifikasiBarang;
+        $level5 = $level6?->parent;
+        $level4 = $level5?->parent;
+        $level3 = $level4?->parent;
 
 
-            $aset->level4_label = $level4
-                ? "{$level4->kode} — {$level4->nama}"
-                : 'BELUM DIKATEGORIKAN';
+        $aset->level3_label = $level3
+            ? "{$level3->kode} — {$level3->nama}"
+            : 'BELUM DIKATEGORIKAN';
 
 
-            $aset->level5_label = $level5
-                ? "{$level5->kode} — {$level5->nama}"
-                : 'BELUM DIKATEGORIKAN';
+        $aset->level4_label = $level4
+            ? "{$level4->kode} — {$level4->nama}"
+            : 'BELUM DIKATEGORIKAN';
 
 
-            $aset->level6_label = $level6
-                ? "{$level6->kode} — {$level6->nama}"
-                : 'BELUM DIKATEGORIKAN';
+        $aset->level5_label = $level5
+            ? "{$level5->kode} — {$level5->nama}"
+            : 'BELUM DIKATEGORIKAN';
 
 
-            $aset->kode_barang_lengkap = $level6
-                ? "{$level6->kode}.{$aset->kode_barang}"
-                : $aset->kode_barang;
+        $aset->level6_label = $level6
+            ? "{$level6->kode} — {$level6->nama}"
+            : 'BELUM DIKATEGORIKAN';
 
 
-            return $aset;
-
-        });
-
-
-        // Sorting berdasarkan kode klasifikasi + kode barang
-        $asets = $asets->sortBy(function ($aset) {
-
-            $kode = optional($aset->klasifikasiBarang)->kode ?? '';
-
-            $paddedKode = collect(explode('.', $kode))
-                ->filter(fn ($s) => $s !== '')
-                ->map(fn ($s) => str_pad($s, 2, '0', STR_PAD_LEFT))
-                ->implode('.');
+        $aset->kode_barang_lengkap = $level6
+            ? "{$level6->kode}.{$aset->kode_barang}"
+            : $aset->kode_barang;
 
 
-            $itemKode = str_pad(
-                $aset->kode_barang ?? '000',
-                3,
-                '0',
-                STR_PAD_LEFT
-            );
+        return $aset;
+
+    });
 
 
-            return $paddedKode . '.' . $itemKode;
+    $asets = $asets->sortBy(function ($aset) {
 
-        })->values();
+        $kode = optional($aset->klasifikasiBarang)->kode ?? '';
+
+        $paddedKode = collect(explode('.', $kode))
+            ->filter(fn ($s) => $s !== '')
+            ->map(fn ($s) => str_pad($s, 2, '0', STR_PAD_LEFT))
+            ->implode('.');
 
 
-        return view('aset.index', compact('asets'));
-    }
+        $itemKode = str_pad(
+            $aset->kode_barang ?? '000',
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
+
+
+        return $paddedKode . '.' . $itemKode;
+
+    })->values();
+
+
+    return view('aset.index', compact('asets'));
+}
 
     /**
      * Menampilkan detail data aset (Bisa diakses oleh Admin & Auditor)
@@ -106,8 +109,11 @@ class AsetController extends Controller
     {
         $klasifikasiList = KlasifikasiBarang::orderBy('kode')->get();
 
+        $ruangans = Ruangan::orderBy('nama_ruangan')->get();
+
         return view('aset.create', compact(
-            'klasifikasiList'
+            'klasifikasiList',
+            'ruangans'
         ));
     }
 
@@ -126,6 +132,11 @@ class AsetController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+
+            'ruangan_id' => [
+                'required',
+                'exists:ruangans,id'
+            ],
 
             'nibar' => [
                 'required',
@@ -187,15 +198,23 @@ class AsetController extends Controller
     {
         $klasifikasiList = KlasifikasiBarang::orderBy('kode')->get();
 
+        $ruangans = Ruangan::orderBy('nama_ruangan')->get();
+
         return view('aset.edit', compact(
             'aset',
-            'klasifikasiList'
+            'klasifikasiList',
+            'ruangans'
         ));
     }
 
     public function update(Request $request, Aset $aset)
     {
         $validated = $request->validate([
+
+            'ruangan_id' => [
+                'required',
+                'exists:ruangans,id'
+            ],
 
             'nibar' => [
                 'required',

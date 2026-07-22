@@ -77,13 +77,31 @@ document.getElementById('klasifikasi_barang_id')
                     </div>
                 </div>
 
-            </div>
+                <div class="form-group">
+                    <label>
+                        Ruangan <span class="text-danger">*</span>
+                    </label>
 
+                    <select name="ruangan_id" class="form-control" required>
 
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle mr-1"></i>
-                Penempatan ruangan diatur belakangan lewat menu
-                <strong>Data Ruangan</strong>, bukan di sini.
+                        <option value="">
+                            -- Pilih Ruangan --
+                        </option>
+
+                        @foreach($ruangans as $r)
+
+                            <option value="{{ $r->id }}"
+                                {{ old('ruangan_id') == $r->id ? 'selected' : '' }}>
+
+                                {{ $r->nama_ruangan }}
+
+                            </option>
+
+                        @endforeach
+
+                    </select>
+                </div>
+
             </div>
 
 

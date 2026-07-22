@@ -78,6 +78,7 @@
                     <th>Jumlah</th>
                     <th>Satuan</th>
                     <th>Keterangan</th>
+                    <th>Ruangan</th>
                     <th>Kondisi</th>
                     <th>Aksi</th>
                     {{-- Kolom grouping: rantai kode+nama level 3-6 -> disembunyikan
@@ -109,7 +110,13 @@
                         {{ rtrim(rtrim(number_format($aset->jumlah, 2, '.', ''), '0'), '.') }}
                     </td>
                     <td>{{ $aset->satuan ?? '-' }}</td>
+
                     <td>{{ $aset->keterangan ?? '-' }}</td>
+
+                    <td>
+                        {{ $aset->ruangan?->nama_ruangan ?? 'Belum ditempatkan' }}
+                    </td>
+
                     <td>
                         @php
                             $badge = [
@@ -206,10 +213,11 @@ $(function () {
         // (soalnya bisa merusak pengelompokan RowGroup bertingkat di bawah).
         ordering: false,
         columnDefs: [
-            { targets: [13, 14, 15, 16], visible: false, searchable: true }
+            { targets: [14, 15, 16, 17], visible: false, searchable: true }
         ],
+
         rowGroup: {
-            dataSrc: [13, 14, 15, 16] // level 3 -> 4 -> 5 -> 6, nested otomatis
+            dataSrc: [14, 15, 16, 17]
         },
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
         pageLength: 25,
