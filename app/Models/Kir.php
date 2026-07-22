@@ -11,16 +11,20 @@ class Kir extends Model
     protected $fillable = [
         'ruangan_id',
         'nomor_kir',
+        'tanggal',
         'tahun',
         'status',
+        'pengguna_barang',
+        'pengurus_barang_id',
+        'penanggung_jawab_id',
+        'keterangan',
         'created_by',
     ];
 
-
     protected $casts = [
-        'tahun' => 'integer',
+        'tahun'   => 'integer',
+        'tanggal' => 'date',
     ];
-
 
     // ── Accessor: $kir->nomor_kir ─────────────────────────────────────────
     // Format: KIR/2026/001
@@ -37,18 +41,15 @@ class Kir extends Model
         );
     }
 
-
     public function ruangan()
     {
         return $this->belongsTo(Ruangan::class);
     }
 
-
     public function items()
     {
         return $this->hasMany(KirItem::class, 'kir_id', 'id');
     }
-
 
     public function asets()
     {
@@ -60,12 +61,10 @@ class Kir extends Model
         );
     }
 
-
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
 
     public static function generateNomor(string $tahun): string
     {
